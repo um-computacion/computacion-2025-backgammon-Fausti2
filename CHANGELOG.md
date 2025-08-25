@@ -11,12 +11,13 @@ Estructura inicial del proyecto:
   Archivo `.gitignore` 
 
 
-## 2025-08-25
+## 25-08-2025
 ### Agregado
 Documentación inicial del proyecto:
    `README.md`
    `JUSTIFICACION.md`
     Archivos `prompts`
+Se agregó el codigo de la clase "Dice` para manejar los dados del juego.
 
 
 
