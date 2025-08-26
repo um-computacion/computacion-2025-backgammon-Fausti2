@@ -18,6 +18,9 @@ Documentación inicial del proyecto:
    `JUSTIFICACION.md`
     Archivos `prompts`
 
+## 26-08-2025
+### Agregado
+configuracion de circle ci 
 
 
 
