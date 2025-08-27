@@ -27,3 +27,4 @@ Se agregó el codigo de la clase "Dice` para manejar los dados del juego.
 ### Agregado
 Se realizo el codigo de "test_dice" y se cambio unos codigos de "dice" que traian problemas al realizar el test 
 Cree el archivo "test_checker" que no lo habia creado y realice el codigo de "checker" 
+Realice el codigo de "test_checker" 
