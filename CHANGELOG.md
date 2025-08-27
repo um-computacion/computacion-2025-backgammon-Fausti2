@@ -23,6 +23,7 @@ Se agregó el codigo de la clase "Dice` para manejar los dados del juego.
 
 
 
-
-
+## 27-08-2025
+### Agregado
+Se realizo el codigo de "test_dice" y se cambio unos codigos de "dice" que traian problemas al realizar el test 
 
