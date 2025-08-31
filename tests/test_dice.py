@@ -13,10 +13,10 @@ class TestDice(unittest.TestCase):
     def test_get_values_after_roll(self):
         self.dice.roll()
         values = self.dice.get_values()
-        self.assertEqual(values, self.dice._values)
+        self.assertEqual(values, self.dice._Dice__values)
 
     def test_initial_state_empty(self):
         self.assertEqual(self.dice.get_values(), [], "Al inicio no debe haber valores")
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()  
