@@ -19,6 +19,9 @@ Documentación inicial del proyecto:
     Archivos `prompts`
 Se agregó el codigo de la clase "Dice` para manejar los dados del juego.
 
+## 26-08-2025
+### Agregado
+configuracion de circle ci 
 
 
 
