@@ -24,3 +24,5 @@ class Dice:
             self.__values = values
         else:
             raise ValueError("Los valores deben estar entre 1 y 6") 
+        
+        

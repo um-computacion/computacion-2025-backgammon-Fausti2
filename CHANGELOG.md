@@ -35,3 +35,7 @@ Realice el codigo de "test_checker"
 ## 31-08-2025
 ### Agregado 
 Modifique los codigos que habia creado agregandoles Atributos con el prefijo __ delante y la implementación de setter y getter 
+Agregue codigo de la clase player 
+Realice el codigo de test_player 
+Agregue la  implementación de setter y getter y lo pusimos en los test 
+
