@@ -1,0 +1,20 @@
+- ChatGPT 5:
+--Pregunta: Cual es la estrcutura correcta para realizar un Changelog 
+--Respuesta:# Changelog
+All notable changes to this project will be documented in this file.
+
+## [Unreleased]
+
+## [versión] - YYYY-MM-DD
+### Added
+- ...
+
+### Changed
+- ...
+
+### Fixed
+- ...
+
+### Removed
+- ...
+--Uso: Tuve en cuenta la estrucutura y realice los cambios en Changelog 
