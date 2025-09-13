@@ -26,19 +26,21 @@ configuracion de circle ci
 
 
 
-## 27-08-2025
+### Modificado
+- Se cambiaron algunos códigos de `dice` que traían problemas al ejecutar los tests.
+
+## 2025-08-31
 ### Agregado
-Se realizo el codigo de "test_dice" y se cambio unos codigos de "dice" que traian problemas al realizar el test 
-Cree el archivo "test_checker" que no lo habia creado y realice el codigo de "checker" 
-Realice el codigo de "test_checker" 
+- Se agregó el código de la clase `Player`.
+- Se realizó el código de `test_player`.
 
-## 31-08-2025
-### Agregado 
-Modifique los codigos que habia creado agregandoles Atributos con el prefijo __ delante y la implementación de setter y getter 
-Agregue codigo de la clase player 
-Realice el codigo de test_player 
-Agregue la implementación de setter y getter y lo pusimos en los test 
+### Modificado
+- Se modificaron los códigos creados agregando atributos con prefijo `__` y la implementación de setters/getters.
+- Se agregó la implementación de setters/getters en los tests.
 
-## 12-09-2025
-### Agregado 
-Mejore el test dice y el test checker 
+## 2025-09-12
+### Agregado
+- Se mejoró `test_dice` y `test_checker`.
+
+### Modificado
+- Se cambió la estructura del `CHANGELOG.md`.
