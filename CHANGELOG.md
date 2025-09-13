@@ -41,4 +41,4 @@ Agregue la implementación de setter y getter y lo pusimos en los test
 
 ## 12-09-2025
 ### Agregado 
-Mejore el test dice 
+Mejore el test dice y el test checker 
