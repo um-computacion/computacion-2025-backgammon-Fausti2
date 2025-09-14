@@ -48,7 +48,8 @@ configuracion de circle ci
 ## 2025-09-13
 ### Agregado 
 - Se agrego lo requerido del readme (nombre y apellido del autor) 
-
+- Agregue el codigo de clase board 
 
 ### Modificado
 - Se cambió la estructura del `CHANGELOG.md`. 
+
