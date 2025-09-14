@@ -1,3 +1,4 @@
+## Prompt 1
 - ChatGPT 5:
 --Pregunta: Cual es la estrcutura correcta para realizar un Changelog 
 --Respuesta:# Changelog
@@ -17,4 +18,24 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 - ...
+--Uso: Tuve en cuenta la estrucutura y realice los cambios en Changelog 
+
+## Prompt 2
+- ChatGPT 5:
+--Pregunta: Le dije que me realice la estrucutura en español 
+--Respuesta: # Changelog
+Todos los cambios notables de este proyecto se documentarán en este archivo.
+
+## [Sin publicar]
+### Agregado
+- (Aquí vas anotando lo que sumes antes de cerrar una versión)
+
+### Modificado
+- (Aquí lo que hayas cambiado)
+
+### Corregido
+- (Aquí lo que hayas arreglado)
+
+### Eliminado
+- (Aquí lo que hayas quitado) 
 --Uso: Tuve en cuenta la estrucutura y realice los cambios en Changelog 

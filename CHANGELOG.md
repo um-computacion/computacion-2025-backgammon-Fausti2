@@ -1,6 +1,6 @@
 # Changelog
 
-## 23-08-2025
+## 2025-08-23
 
 ### Agregado
 Estructura inicial del proyecto:
@@ -11,7 +11,7 @@ Estructura inicial del proyecto:
   Archivo `.gitignore` 
 
 
-## 25-08-2025
+## 2025-08-25
 ### Agregado
 Documentación inicial del proyecto:
    `README.md`
@@ -19,7 +19,7 @@ Documentación inicial del proyecto:
     Archivos `prompts`
 Se agregó el codigo de la clase "Dice` para manejar los dados del juego.
 
-## 26-08-2025
+## 2025-08-26
 ### Agregado
 configuracion de circle ci 
 
@@ -44,3 +44,11 @@ configuracion de circle ci
 
 ### Modificado
 - Se cambió la estructura del `CHANGELOG.md`.
+
+## 2025-09-13
+### Agregado 
+- Se agrego lo requerido del readme (nombre y apellido del autor) 
+
+
+### Modificado
+- Se cambió la estructura del `CHANGELOG.md`. 
