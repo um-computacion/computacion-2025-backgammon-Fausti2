@@ -5,7 +5,7 @@
 ### Pregunta: 
 Cual es la estrcutura correcta para realizar un Changelog 
 
- ### Respuesta: 
+### Respuesta:
  # Changelog
 All notable changes to this project will be documented in this file.
 
@@ -99,14 +99,12 @@ All notable changes to this project will be documented in this file.
 - ...
 Uso
 Tuve en cuenta la estructura y realicé los cambios en el Changelog.
-
 ---
 
 ### 🚀 Diferencias
 - `# Prompt 1` → título grande.  
 - `## Pregunta`, `## Respuesta`, `## Uso` → subtítulos claros.  
 - Para mostrar código tal cual, se usan **triple backticks** (```) al inicio y al final.  
-
 ---
 
 ###Uso: Tuve en cuenta que con "--" no se realiza titulos ni subititulos entonces voy a implementar siempre "#" para títulos, `##` para subtítulos. 
