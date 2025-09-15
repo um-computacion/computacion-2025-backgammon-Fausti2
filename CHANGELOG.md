@@ -64,5 +64,6 @@ configuracion de circle ci
 ## 15-09-2025
 ### Agregado 
 - Empece realizando el codigo de "game.py" creando la funciones para guardar tablero, jugadores y dados, y poder cambiar de turno.
+- continue con las funciones para "game.py" agregando roll_dice y get_rolled_values para manejar tiradas del turno.
 ### Modificado 
 - Cambie comentarios de la clase board 
