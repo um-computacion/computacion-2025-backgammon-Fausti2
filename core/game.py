@@ -44,4 +44,22 @@ class BackgammonGame:
 
     def get_rolled_values(self) -> list[int]:
         """Devuelve los valores de la tirada actual (si existen)."""
-        return list(self.__rolled__)
+        return list(self.__rolled__) 
+    
+    def move(self, start: int, end: int, checker_color: str) -> None:
+        """
+        Mueve una ficha de 'start' a 'end' SIN validar reglas de Backgammon.
+        Busca una ficha del color indicado en el punto 'start' y la mueve.
+        Levanta ValueError si no encuentra ficha en el origen.
+        """
+        stack = self.__board__.get_point(start)
+        # Busca una ficha del color solicitado en el punto de origen
+        target = None
+        for ch in stack:
+            if ch.get_color() == checker_color:
+                target = ch
+                break
+        if target is None:
+            raise ValueError("No hay ficha del color indicado en el punto de origen.")
+        self.__board__.move_checker(start, end, target) 
+        
