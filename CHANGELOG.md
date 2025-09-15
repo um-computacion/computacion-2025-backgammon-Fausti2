@@ -1,7 +1,6 @@
 # Changelog
 
-## 2025-08-23
-
+## 23-08-2025
 ### Agregado
 Estructura inicial del proyecto:
   Carpeta `core` con las clases principales (`board.py`, `player.py`, `dice.py`, `checker.py`, `game.py`).
@@ -11,7 +10,7 @@ Estructura inicial del proyecto:
   Archivo `.gitignore` 
 
 
-## 2025-08-25
+## 25-08-2025
 ### Agregado
 Documentación inicial del proyecto:
    `README.md`
@@ -19,17 +18,20 @@ Documentación inicial del proyecto:
     Archivos `prompts`
 Se agregó el codigo de la clase "Dice` para manejar los dados del juego.
 
-## 2025-08-26
+## 26-08-2025
 ### Agregado
 configuracion de circle ci 
 
-
-
+## 27-08-2025
+### Agregado
+- Agregar el código de `test_dice`.  
+- Crear el archivo `test_checker` y su implementación de código en `checker.py`.  
+- Agregar el código de `test_checker`.  
 
 ### Modificado
-- Se cambiaron algunos códigos de `dice` que traían problemas al ejecutar los tests.
+- Cambiar el código de `dice.py` para corregir problemas detectados al ejecutar los tests.
 
-## 2025-08-31
+## 31-08-2025
 ### Agregado
 - Se agregó el código de la clase `Player`.
 - Se realizó el código de `test_player`.
@@ -38,14 +40,14 @@ configuracion de circle ci
 - Se modificaron los códigos creados agregando atributos con prefijo `__` y la implementación de setters/getters.
 - Se agregó la implementación de setters/getters en los tests.
 
-## 2025-09-12
+## 12-09-2025
 ### Agregado
 - Se mejoró `test_dice` y `test_checker`.
 
 ### Modificado
 - Se cambió la estructura del `CHANGELOG.md`.
 
-## 2025-09-13
+## 13-09-2025
 ### Agregado 
 - Se agrego lo requerido del readme (nombre y apellido del autor) 
 - Agregue el codigo de clase board y sus test 
@@ -53,8 +55,14 @@ configuracion de circle ci
 ### Modificado
 - Se cambió la estructura del `CHANGELOG.md`. 
 
-## 2025-09-13
+## 14-09-2025
 ### Agregado 
 
 ### Modificado 
 - Estructura de documentación para que se vea ordenada en Git. 
+
+## 15-09-2025
+### Agregado 
+
+### Modificado 
+- Cambie comentarios de la clase board 

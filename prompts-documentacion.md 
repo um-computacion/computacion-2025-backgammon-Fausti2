@@ -21,7 +21,7 @@ All notable changes to this project will be documented in this file.
 ### Fixed
 - ...
 
-### Removed
+### Removed 
 - ...
 
 ### Uso: 
@@ -107,4 +107,4 @@ Tuve en cuenta la estructura y realicé los cambios en el Changelog.
 - Para mostrar código tal cual, se usan **triple backticks** (```) al inicio y al final.  
 ---
 
-###Uso: Tuve en cuenta que con "--" no se realiza titulos ni subititulos entonces voy a implementar siempre "#" para títulos, `##` para subtítulos. 
+### Uso: Tuve en cuenta que con "--" no se realiza titulos ni subititulos entonces voy a implementar siempre "#" para títulos, `##` para subtítulos. 
