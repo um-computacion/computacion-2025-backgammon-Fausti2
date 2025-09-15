@@ -53,3 +53,8 @@ configuracion de circle ci
 ### Modificado
 - Se cambió la estructura del `CHANGELOG.md`. 
 
+## 2025-09-13
+### Agregado 
+
+### Modificado 
+- Estructura de documentación para que se vea ordenada en Git. 
