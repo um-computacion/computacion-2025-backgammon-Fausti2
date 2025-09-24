@@ -61,5 +61,11 @@ class BackgammonGame:
                 break
         if target is None:
             raise ValueError("No hay ficha del color indicado en el punto de origen.")
-        self.__board__.move_checker(start, end, target) 
-        
+        self.__board__.move_checker(start, end, target)
+
+    def is_finished(self) -> bool:
+        """
+        Indica si la partida terminó.
+        TODO: implementar cuando se agregue borne-off y condición de victoria real.
+        """
+        return False 
