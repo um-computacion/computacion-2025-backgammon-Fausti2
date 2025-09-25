@@ -22,4 +22,18 @@ class TestGame(unittest.TestCase):
         self.game.end_turn()
         self.assertEqual(self.game.get_current_player().get_color(), "negro")
         self.game.end_turn()
-        self.assertEqual(self.game.get_current_player().get_color(), "blanco")
+        self.assertEqual(self.game.get_current_player().get_color(), "blanco") 
+
+    def test_roll_dice_devuelve_valores_validos(self):
+        """roll_dice() debe devolver 2 o 4 valores entre 1 y 6."""
+        values = self.game.roll_dice()
+        self.assertTrue(all(1 <= v <= 6 for v in values))
+        self.assertIn(len(values), (2, 4))
+
+    def test_get_rolled_values_refleja_la_ultima_tirada(self):
+        """get_rolled_values() iguala lo devuelto por roll_dice()."""
+        rolled = self.game.roll_dice()
+        self.assertEqual(self.game.get_rolled_values(), rolled)
+
+
+

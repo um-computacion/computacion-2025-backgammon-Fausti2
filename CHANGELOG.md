@@ -78,3 +78,6 @@ configuracion de circle ci
 - Empece realizando los tests de "test_game" que cubren la instanciación básica del juego con tablero, jugadores y dados.
 - Se agregó validación del turno inicial (empieza siempre el jugador blanco).
 - Se agregó validación del cambio de turno mediante el método "end_turn()". 
+- Continué con los tests en "test_game" agregando la validación de la tirada de dados.
+- Se comprobó que los dados devuelven valores en el rango correcto (1 a 6).
+- Se verificó que siempre se obtienen dos valores al lanzar. 
