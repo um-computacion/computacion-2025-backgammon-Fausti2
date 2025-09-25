@@ -81,3 +81,8 @@ configuracion de circle ci
 - Continué con los tests en "test_game" agregando la validación de la tirada de dados.
 - Se comprobó que los dados devuelven valores en el rango correcto (1 a 6).
 - Se verificó que siempre se obtienen dos valores al lanzar. 
+- Agregue validaciones de movimientos de fichas en el tablero.
+- Se añadieron pruebas para verificar que al mover fichas se actualicen correctamente los puntos de origen y destino.
+- Agregué pruebas para mandar fichas a la barra y también para sacarlas de ahí.(para volver a jugar)
+
+
