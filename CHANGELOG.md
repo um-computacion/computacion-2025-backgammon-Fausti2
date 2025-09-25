@@ -69,6 +69,12 @@ configuracion de circle ci
 ### Modificado 
 - Cambie comentarios de la clase board 
 
-## 15-09-2025
+## 24-09-2025
 ### Agregado 
 - Termine de realizar el codigo de "game.py" 
+
+## 25-09-2025
+### Agregado 
+- Empece realizando los tests de "test_game" que cubren la instanciación básica del juego con tablero, jugadores y dados.
+- Se agregó validación del turno inicial (empieza siempre el jugador blanco).
+- Se agregó validación del cambio de turno mediante el método "end_turn()". 
