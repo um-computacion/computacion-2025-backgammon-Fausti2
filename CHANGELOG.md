@@ -85,4 +85,6 @@ configuracion de circle ci
 - Se añadieron pruebas para verificar que al mover fichas se actualicen correctamente los puntos de origen y destino.
 - Agregué pruebas para mandar fichas a la barra y también para sacarlas de ahí.(para volver a jugar)
 
-
+## 26-09-2025
+### Agregado 
+- Implemente pylint con los archivos necesarios 
