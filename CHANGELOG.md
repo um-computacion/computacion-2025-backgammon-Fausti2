@@ -88,3 +88,4 @@ configuracion de circle ci
 ## 26-09-2025
 ### Agregado 
 - Implemente pylint con los archivos necesarios 
+- Agregue requerimientos en requirements.txt 
