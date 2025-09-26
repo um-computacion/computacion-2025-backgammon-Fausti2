@@ -89,3 +89,4 @@ configuracion de circle ci
 ### Agregado 
 - Implemente pylint con los archivos necesarios 
 - Agregue requerimientos en requirements.txt 
+- Cree el archivo coveragerc 
