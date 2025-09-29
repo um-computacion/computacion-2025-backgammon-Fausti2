@@ -90,3 +90,8 @@ configuracion de circle ci
 - Implemente pylint con los archivos necesarios 
 - Agregue requerimientos en requirements.txt 
 - Cree el archivo coveragerc 
+
+## 29-09-2025
+### Agregado 
+- Empece realizando "cli/main.py" agregano las primeras funciones 
+
