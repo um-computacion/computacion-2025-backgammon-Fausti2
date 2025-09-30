@@ -93,5 +93,6 @@ configuracion de circle ci
 
 ## 29-09-2025
 ### Agregado 
-- Empece realizando "cli/main.py" agregano las primeras funciones 
-
+- Empece realizando "cli/main.py" agregando las primeras funciones 
+- Aguregue la funcion en "main.py" que se pueda ver el tablero 
+ 
