@@ -96,3 +96,6 @@ configuracion de circle ci
 - Empece realizando "cli/main.py" agregando las primeras funciones 
 - Aguregue la funcion en "main.py" que se pueda ver el tablero 
  
+## 30-09-2025
+### Agregado 
+- Agregue en "main.py" para que se pueda ver el quien es el turno y tambien que se pueda tirar los dados 

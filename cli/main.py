@@ -3,15 +3,22 @@ Comandos iniciales:
   ayuda     -> muestra esta ayuda
   salir     -> termina la aplicación
   tablero   -> muestra cantidad de fichas por punto (0..23)
+  turno     -> muestra de quién es el turno
+  tirar     -> tira los dados y muestra el resultado
 """
-from core.board import Board  # tablero con 24 puntos y barra
-
+from core.board import Board  
+from core.player import Player
+from core.dice import Dice
+from core.game import BackgammonGame
 
 def _imprimir_ayuda() -> None:
     print("Comandos disponibles:")
     print("  ayuda     -> muestra esta ayuda")
     print("  salir     -> termina la aplicación")
-    print("  tablero   -> muestra cantidad de fichas por punto (0..23)") 
+    print("  tablero   -> muestra cantidad de fichas por punto (0..23)")
+    print("  turno     -> muestra de quién es el turno")
+    print("  tirar     -> tira los dados y muestra el resultado")
+    
 
 
 def _render_tablero(board: Board) -> None:
@@ -28,7 +35,10 @@ def main() -> None:
   # Creo el tablero y lo dejo en posición inicial estándar
     board = Board() 
     board.setup_standard()
-
+    blanco = Player("Blanco", "blanco")
+    negro = Player("Negro", "negro")
+    dice = Dice()
+    game = BackgammonGame(board, blanco, negro, dice) 
 
     while True:
         try:
@@ -49,6 +59,15 @@ def main() -> None:
                 _render_tablero(board) 
                 continue
 
+            if cmd == "turno":
+                print("Turno de:", game.get_current_player().get_color())
+                continue
+
+            if cmd == "tirar":
+                valores = game.roll_dice()
+                print("Dados tirados:", valores)
+                continue
+
             print("Comando no reconocido. Escribí 'ayuda' para ver opciones.")
         except Exception as e:
             print("Error:", e)
@@ -56,4 +75,3 @@ def main() -> None:
 if __name__ == "__main__":
     main() 
 
-    
