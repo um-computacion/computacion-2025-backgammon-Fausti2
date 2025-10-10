@@ -151,7 +151,7 @@ class Board:
                         grid[r][c] = sym
             return [" ".join(row) for row in grid]
 
-          # Encabezados con separadores de cuadrantes
+        # Encabezados con separadores de cuadrantes
         def idx_line(indices: list[int]) -> str:
             parts = [f"{i:>2}" for i in indices]
             # separadores visuales entre cuadrantes (entre 17|18 y 5|6)
@@ -163,4 +163,18 @@ class Board:
         bot_idx = idx_line(bot)
 
         top_rows = mk_row(top, down=True)
-        bot_rows = mk_row(bot, down=False) 
+        bot_rows = mk_row(bot, down=False)
+
+        bar = self.get_bar()
+        out: list[str] = []
+        out.append("Cuadrantes (1..4):   [ 3 | 4 ] arriba   /   [ 2 | 1 ] abajo")
+        out.append("Arriba (12→23):")
+        out.append(top_idx)
+        out.extend(top_rows)
+        out.append("────────────────────────────────────────────────────────")
+        out.append("Abajo  (11→00):")
+        out.append(bot_idx)
+        out.extend(bot_rows)
+        out.append("────────────────────────────────────────────────────────")
+        out.append(f"Barra: B={len(bar['blanco'])} | N={len(bar['negro'])}")
+        return "\n".join(out)  

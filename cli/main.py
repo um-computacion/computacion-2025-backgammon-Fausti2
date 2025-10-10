@@ -21,7 +21,7 @@ def _imprimir_ayuda() -> None:
     
 
 
-def _render_tablero(board: Board) -> None:
+def mostrar_tablero_texto(board: Board) -> None:
     cantidades = [len(board.get_point(i)) for i in range(24)]
     duenos = [board.owner_at(i) or "-" for i in range(24)]
     print("Puntos (0..23) | Cantidades:", cantidades)
@@ -56,13 +56,13 @@ def main() -> None:
                 continue 
 
             if cmd == "tablero":
-                print(board.mostrar_tablero_texto())
+                print(board.to_ascii())
                 continue
 
             if cmd == "turno":
                 print("Turno de:", game.get_current_player().get_color())
                 continue
-
+            
             if cmd == "tirar":
                 valores = game.roll_dice()
                 print("Dados tirados:", valores)
