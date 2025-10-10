@@ -99,3 +99,8 @@ configuracion de circle ci
 ## 30-09-2025
 ### Agregado 
 - Agregue en "main.py" para que se pueda ver el quien es el turno y tambien que se pueda tirar los dados 
+
+
+## 10-10-2025
+### Agregado 
+- Agregamos funcones en "board.py" para mejorar la visualizacion del tablero 
