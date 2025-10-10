@@ -103,4 +103,5 @@ configuracion de circle ci
 
 ## 10-10-2025
 ### Agregado 
-- Agregamos funcones en "board.py" para mejorar la visualizacion del tablero 
+- Agregue funcones en "board.py" para mejorar la visualizacion del tablero 
+- Segui mejorando la visualizacion del tablero 

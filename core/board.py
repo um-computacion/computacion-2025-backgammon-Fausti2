@@ -151,4 +151,16 @@ class Board:
                         grid[r][c] = sym
             return [" ".join(row) for row in grid]
 
-        
+          # Encabezados con separadores de cuadrantes
+        def idx_line(indices: list[int]) -> str:
+            parts = [f"{i:>2}" for i in indices]
+            # separadores visuales entre cuadrantes (entre 17|18 y 5|6)
+            if len(indices) == 12:
+                parts.insert(6, "│")  # divide 6 y 6
+            return " ".join(parts)
+
+        top_idx = idx_line(top)
+        bot_idx = idx_line(bot)
+
+        top_rows = mk_row(top, down=True)
+        bot_rows = mk_row(bot, down=False) 

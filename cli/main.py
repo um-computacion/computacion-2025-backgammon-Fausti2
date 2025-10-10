@@ -56,7 +56,7 @@ def main() -> None:
                 continue 
 
             if cmd == "tablero":
-                _render_tablero(board) 
+                print(board.mostrar_tablero_texto())
                 continue
 
             if cmd == "turno":
