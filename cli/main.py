@@ -74,13 +74,28 @@ def main() -> None:
                 board.setup_standard()
                 print("Tablero reiniciado a la posición inicial.")
                 continue
-        
-            
-            print("Comando no reconocido. Escribí 'ayuda' para ver opciones.")
-        except Exception as e:
-            print("Error:", e)
+    # ----Mover ficha----
+            if cmd in {"mover", "move"}:
+             if len(partes) != 4:
+                print("Uso: mover <origen:int> <destino:int> <color:blanco|negro>")
+                continue
 
+             origen = int(partes[1])
+             destino = int(partes[2])
+             color = partes[3].lower()
 
+             if color not in {"blanco", "negro"}:
+              print("Color inválido. Usá: blanco | negro")
+              continue
+
+            # Llama a la lógica existente en BackgammonGame (esta valida que haya ficha del color en 'origen')
+            game.move(origen, destino, color)
+            print(f"Movida {color}: {origen} -> {destino}")
+            continue
+
+        except Exception as exc:
+        # Errores típicos: índice fuera de rango o no hay ficha del color en el origen
+         print("Error:", exc)
 if __name__ == "__main__":
     main() 
 

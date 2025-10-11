@@ -46,12 +46,33 @@ class BackgammonGame:
         """Devuelve los valores de la tirada actual (si existen)."""
         return list(self.__rolled__) 
     
+    def _require_roll(self) -> None:
+        """Exige que haya una tirada activa para poder mover."""
+        if not self.__rolled__:
+            raise ValueError("Primero tirá los dados (comando 'tirar').")
+
+    def _move_distance(self, start: int, end: int, color: str) -> int:
+        """Calcula la distancia y valida dirección básica por color."""
+        if color == "blanco":
+            if end <= start:
+                raise ValueError("El blanco debe mover hacia índices mayores (end > start).")
+            return end - start
+        if color == "negro":
+            if end >= start:
+                raise ValueError("El negro debe mover hacia índices menores (end < start).")
+            return start - end
+        raise ValueError("Color inválido. Usá 'blanco' o 'negro'.")
+    
     def move(self, start: int, end: int, checker_color: str) -> None:
         """
-        Mueve una ficha de 'start' a 'end' SIN validar reglas de Backgammon.
+        Mueve una ficha de 'start' a 'end'.
         Busca una ficha del color indicado en el punto 'start' y la mueve.
         Levanta ValueError si no encuentra ficha en el origen.
         """
+        self._require_roll()
+        dist = self._move_distance(start, end, checker_color)
+        if dist not in self.__rolled__:
+           raise ValueError(f"El movimiento ({dist}) no coincide con la tirada: {self.__rolled__}")
         stack = self.__board__.get_point(start)
         # Busca una ficha del color solicitado en el punto de origen
         target = None
@@ -62,6 +83,7 @@ class BackgammonGame:
         if target is None:
             raise ValueError("No hay ficha del color indicado en el punto de origen.")
         self.__board__.move_checker(start, end, target)
+        self.__rolled__.remove(dist) 
 
     def is_finished(self) -> bool:
         """
@@ -69,3 +91,4 @@ class BackgammonGame:
         TODO: implementar cuando se agregue borne-off y condición de victoria real.
         """
         return False 
+    
