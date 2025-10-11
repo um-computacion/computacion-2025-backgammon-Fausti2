@@ -6,7 +6,8 @@ Comandos iniciales:
   turno     -> muestra de quién es el turno
   tirar     -> tira los dados y muestra el resultado
   reiniciar -> vuelve a la posición inicial estándar
-"""
+  mover <origen> <destino> <color> -> mueve una ficha (ej.: mover 0 5 blanco)
+""" 
 from core.board import Board  
 from core.player import Player
 from core.dice import Dice
@@ -20,6 +21,7 @@ def _imprimir_ayuda() -> None:
     print("  turno     -> muestra de quién es el turno")
     print("  tirar     -> tira los dados y muestra el resultado")
     print("  reiniciar -> vuelve a la posición inicial estándar")
+    print("  mover <origen> <destino> <color> -> mueve una ficha (ej.: mover 0 5 blanco)") 
 
 
 

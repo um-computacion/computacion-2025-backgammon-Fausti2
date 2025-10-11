@@ -129,6 +129,8 @@ class Board:
         - Cada celda muestra hasta `niveles` fichas: B (blanco) / N (negro)
         - Muestra la barra y separadores de cuadrantes
         """
+        CELL = 2  # ancho fijo para cada celda (coincide con el ancho de los índices)
+
         def ch(color: str | None) -> str:
             return "B" if color == "blanco" else ("N" if color == "negro" else " ")
 
@@ -144,17 +146,23 @@ class Board:
                     continue
                 sym = ch(color)
                 if down:
-                    for r in range(h):            # llena 0..h-1
+                    for r in range(h):  # llena 0..h-1 desde arriba
                         grid[r][c] = sym
                 else:
                     for r in range(niveles-1, niveles-h-1, -1):  # llena desde abajo
                         grid[r][c] = sym
-            return [" ".join(row) for row in grid]
+
+            lines: list[str] = []
+            for r in range(niveles):
+                cells = [f"{grid[r][c]:>{CELL}}" for c in range(len(indices))] 
+                if len(indices) == 12:
+                    cells.insert(6, "│")
+                lines.append(" ".join(cells))
+            return lines
 
         # Encabezados con separadores de cuadrantes
         def idx_line(indices: list[int]) -> str:
-            parts = [f"{i:>2}" for i in indices]
-            # separadores visuales entre cuadrantes (entre 17|18 y 5|6)
+            parts = [f"{i:>{CELL}}" for i in indices]
             if len(indices) == 12:
                 parts.insert(6, "│")  # divide 6 y 6
             return " ".join(parts)
@@ -177,4 +185,5 @@ class Board:
         out.extend(bot_rows)
         out.append("────────────────────────────────────────────────────────")
         out.append(f"Barra: B={len(bar['blanco'])} | N={len(bar['negro'])}")
-        return "\n".join(out)  
+        return "\n".join(out) 
+    

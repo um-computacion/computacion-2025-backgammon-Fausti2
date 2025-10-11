@@ -111,3 +111,4 @@ configuracion de circle ci
 ### Agregado 
 - Agregue la funcion de reiniciar en main 
 - Agregue en game que al mover las fichas que tengan que coincidir con el valor de la tirada y lo agregue en tmb en main. 
+- Realice unas mejoras en cuanto ala visaulizacion del tablero 
