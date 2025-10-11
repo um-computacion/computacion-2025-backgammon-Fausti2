@@ -5,6 +5,7 @@ Comandos iniciales:
   tablero   -> muestra cantidad de fichas por punto (0..23)
   turno     -> muestra de quién es el turno
   tirar     -> tira los dados y muestra el resultado
+  reiniciar -> vuelve a la posición inicial estándar
 """
 from core.board import Board  
 from core.player import Player
@@ -18,7 +19,8 @@ def _imprimir_ayuda() -> None:
     print("  tablero   -> muestra cantidad de fichas por punto (0..23)")
     print("  turno     -> muestra de quién es el turno")
     print("  tirar     -> tira los dados y muestra el resultado")
-    
+    print("  reiniciar -> vuelve a la posición inicial estándar")
+
 
 
 def mostrar_tablero_texto(board: Board) -> None:
@@ -62,16 +64,24 @@ def main() -> None:
             if cmd == "turno":
                 print("Turno de:", game.get_current_player().get_color())
                 continue
-            
+
             if cmd == "tirar":
                 valores = game.roll_dice()
                 print("Dados tirados:", valores)
                 continue
-
+                
+            if cmd == "reiniciar":
+                board.setup_standard()
+                print("Tablero reiniciado a la posición inicial.")
+                continue
+        
+            
             print("Comando no reconocido. Escribí 'ayuda' para ver opciones.")
         except Exception as e:
             print("Error:", e)
 
+
 if __name__ == "__main__":
     main() 
+
 

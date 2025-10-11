@@ -106,3 +106,7 @@ configuracion de circle ci
 - Agregue funcones en "board.py" para mejorar la visualizacion del tablero 
 - Segui mejorando la visualizacion del tablero 
 - Termine con la visualizacion del tablero 
+
+## 11-10-2025
+### Agregado 
+- Agregue la funcion de reiniciar en main 
