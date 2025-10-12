@@ -57,7 +57,6 @@ def _menu_principal() -> str:
     return "4" if op == "salir" else op
 
 def _prompt_turno(game: BackgammonGame) -> str:
-    """Prompt dinámico corto (turno y dados)."""
     turno = game.get_current_player().get_color()
     dados = game.get_rolled_values()
     visor = "[" + ", ".join(map(str, dados)) + "]" if dados else "-"
@@ -109,7 +108,7 @@ def main() -> None:
                 # ---- salir (cierra la app) ----
                 if cmd == "salir":
                     print("¡Hasta luego!")
-                    break
+                    return
 
                 # ---- volver (regresa al menú) ----
                 if cmd in {"volver", "menu"}:

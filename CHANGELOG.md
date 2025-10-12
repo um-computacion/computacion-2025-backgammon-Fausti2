@@ -116,3 +116,4 @@ configuracion de circle ci
 ## 11-10-2025
 ### Agregado 
 - Cambie el esquema de main para que al jugar se vea de una manera mas simple y facil de entender. Tambien realice correcciones en "game" donde en la dinamica del juego la perjudicaba. 
+- Realice correcciones en main y en "game" 

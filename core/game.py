@@ -40,11 +40,16 @@ class BackgammonGame:
             raise ValueError("Ya hay una tirada activa; usá esos dados o pasá el turno.")
         self.__rolled__ = self.__dice__.roll()
         return self.__rolled__ 
-
+    
+    def _require_turn_color(self, color: str) -> None:
+        turno = self.__current__.get_color()
+        if color != turno:
+            raise ValueError(f"Es turno de {turno}. No puede mover {color}.")
+    
     def get_rolled_values(self) -> list[int]:
         """Devuelve los valores de la tirada actual (si existen)."""
-        return list(self.__rolled__) 
-    
+        return list(self.__rolled__)
+
     def _require_roll(self) -> None:
         """Exige que haya una tirada activa para poder mover."""
         if not self.__rolled__:
@@ -70,6 +75,7 @@ class BackgammonGame:
         Levanta ValueError si no encuentra ficha en el origen.
         """
         self._require_roll()
+        self._require_turn_color(checker_color)
         dist = self._move_distance(start, end, checker_color)
         if dist not in self.__rolled__:
            raise ValueError(f"El movimiento ({dist}) no coincide con la tirada: {self.__rolled__}")
@@ -87,11 +93,10 @@ class BackgammonGame:
         # si no quedan dados → pasar turno automático
         if not self.__rolled__:
             self.end_turn()
-
+    
     def is_finished(self) -> bool:
         """
         Indica si la partida terminó.
-        TODO: implementar cuando se agregue borne-off y condición de victoria real.
         """
         return False 
     
