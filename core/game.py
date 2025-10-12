@@ -88,9 +88,26 @@ class BackgammonGame:
                 break
         if target is None:
             raise ValueError("No hay ficha del color indicado en el punto de origen.")
+        # --- validar el destino según reglas básicas ---
+        opponent = "negro" if checker_color == "blanco" else "blanco"
+        dest_count = self.__board__.count_at(end)
+        dest_owner = self.__board__.owner_at(end)
+
+        if dest_owner == opponent and dest_count >= 2:
+            # Punto bloqueado por el rival
+            raise ValueError(f"Punto bloqueado por {opponent}: {end} tiene {dest_count} fichas.")
+
+        # Si hay exactamente 1 del rival, se “come”: va a la barra
+        if dest_owner == opponent and dest_count == 1:
+            capturada = self.__board__.remove_checker(end)
+            self.__board__.send_to_bar(capturada)
+
+        # Mueve la ficha seleccionada
         self.__board__.move_checker(start, end, target)
-        self.__rolled__.remove(dist) 
-        # si no quedan dados → pasar turno automático
+
+        # Elimina el dado usado
+        self.__rolled__.remove(dist)
+        # Si se usaron todos los dados, cambiar el turno
         if not self.__rolled__:
             self.end_turn()
     
