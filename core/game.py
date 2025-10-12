@@ -35,12 +35,11 @@ class BackgammonGame:
         self.__rolled__ = []
 
     def roll_dice(self) -> list[int]:
-        """
-        Tira los dados y guarda los valores del turno.
-        Devuelve la lista de valores (2 o 4 si hay dobles).
-        """
+        """Tira los dados y guarda los valores del turno."""
+        if self.__rolled__:
+            raise ValueError("Ya hay una tirada activa; usá esos dados o pasá el turno.")
         self.__rolled__ = self.__dice__.roll()
-        return self.__rolled__
+        return self.__rolled__ 
 
     def get_rolled_values(self) -> list[int]:
         """Devuelve los valores de la tirada actual (si existen)."""
@@ -61,7 +60,8 @@ class BackgammonGame:
             if end >= start:
                 raise ValueError("El negro debe mover hacia índices menores (end < start).")
             return start - end
-        raise ValueError("Color inválido. Usá 'blanco' o 'negro'.")
+        raise ValueError("Color inválido. Usá 'blanco' o 'negro'.") 
+    
     
     def move(self, start: int, end: int, checker_color: str) -> None:
         """
@@ -84,6 +84,9 @@ class BackgammonGame:
             raise ValueError("No hay ficha del color indicado en el punto de origen.")
         self.__board__.move_checker(start, end, target)
         self.__rolled__.remove(dist) 
+        # si no quedan dados → pasar turno automático
+        if not self.__rolled__:
+            self.end_turn()
 
     def is_finished(self) -> bool:
         """
