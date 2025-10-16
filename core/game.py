@@ -110,10 +110,28 @@ class BackgammonGame:
         # Si se usaron todos los dados, cambiar el turno
         if not self.__rolled__:
             self.end_turn()
-    
+    def _home_range(self, color: str) -> range:
+        return range(18, 24) if color == "blanco" else range(0, 6)
+
+    def _all_in_home(self, color: str) -> bool:
+        rang = self._home_range(color)
+        for i in range(24):
+            owner = self.__board__.owner_at(i)
+            if owner == color and i not in rang:
+                return False
+        # además no debe haber fichas de ese color en la barra
+        return len(self.__board__.get_bar()[color]) == 0
+    def _entry_point(self, color: str, die: int) -> int:
+        if color == "blanco":
+            return 24 - die  # 1->23 ... 6->18
+        return die - 1       # negro: 1->0 ... 6->5
+
+    def _has_on_bar(self, color: str) -> bool:
+        return len(self.__board__.get_bar()[color]) > 0
+
     def is_finished(self) -> bool:
         """
         Indica si la partida terminó.
         """
-        return False 
+        return False
     
