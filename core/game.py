@@ -2,6 +2,7 @@ from core.board import Board
 from core.player import Player
 from core.dice import Dice
 
+
 class BackgammonGame:
     """
     Coordina el flujo general del juego.
@@ -39,13 +40,13 @@ class BackgammonGame:
         if self.__rolled__:
             raise ValueError("Ya hay una tirada activa; usá esos dados o pasá el turno.")
         self.__rolled__ = self.__dice__.roll()
-        return self.__rolled__ 
-    
+        return self.__rolled__
+
     def _require_turn_color(self, color: str) -> None:
         turno = self.__current__.get_color()
         if color != turno:
             raise ValueError(f"Es turno de {turno}. No puede mover {color}.")
-    
+
     def get_rolled_values(self) -> list[int]:
         """Devuelve los valores de la tirada actual (si existen)."""
         return list(self.__rolled__)
@@ -65,9 +66,8 @@ class BackgammonGame:
             if end >= start:
                 raise ValueError("El negro debe mover hacia índices menores (end < start).")
             return start - end
-        raise ValueError("Color inválido. Usá 'blanco' o 'negro'.") 
-    
-    
+        raise ValueError("Color inválido. Usá 'blanco' o 'negro'.")
+
     def move(self, start: int, end: int, checker_color: str) -> None:
         """
         Mueve una ficha de 'start' a 'end'.
@@ -76,11 +76,92 @@ class BackgammonGame:
         """
         self._require_roll()
         self._require_turn_color(checker_color)
+
+        opponent = "negro" if checker_color == "blanco" else "blanco"
+
+        # --- PRIORIDAD: si hay fichas en la barra, sólo se puede entrar con esas fichas ---
+        if self._has_on_bar(checker_color):
+            if start != -1:
+                raise ValueError("Tenés fichas en la barra. Entrá con: mover -1 <destino> <color>.")
+
+            # buscar un dado que haga coincidir la casilla de entrada
+            dado_usado = None
+            for d in sorted(set(self.__rolled__), reverse=True):
+                if self._entry_point(checker_color, d) == end:
+                    dado_usado = d
+                    break
+            if dado_usado is None:
+                raise ValueError(f"Destino inválido para entrar desde barra con estos dados: {self.__rolled__}")
+
+            # bloqueo/comer en el destino
+            dest_count = self.__board__.count_at(end)
+            dest_owner = self.__board__.owner_at(end)
+            if dest_owner == opponent and dest_count >= 2:
+                raise ValueError(f"Punto bloqueado por {opponent}: {end} tiene {dest_count} fichas.")
+            if dest_owner == opponent and dest_count == 1:
+                capt = self.__board__.remove_checker(end)
+                self.__board__.send_to_bar(capt)
+
+            # entrar: saco de la barra y coloco en 'end'
+            ficha = self.__board__.pop_from_bar(checker_color)
+            self.__board__.add_checker(end, ficha)
+
+            # consumir dado y chequear fin de turno
+            self.__rolled__.remove(dado_usado)
+            if not self.__rolled__:
+                self.end_turn()
+            return
+
+        # --- BEAR OFF: sacar fichas (end=24 blanco / end=-1 negro) ---
+        is_bear_off = (
+            (checker_color == "blanco" and end == 24) or
+            (checker_color == "negro" and end == -1)
+        )
+        if is_bear_off:
+            if not self._all_in_home(checker_color):
+                raise ValueError("No podés sacar fichas: no están todas en tu cuadrante final.")
+
+            # distancia necesaria para salir
+            need = (24 - start) if checker_color == "blanco" else (start + 1)
+
+            # dado exacto o mayor permitido (si no hay fichas más lejos en el home)
+            if need in self.__rolled__:
+                dado_usado = need
+            else:
+                home = self._home_range(checker_color)
+                hay_mas_lejos = any(
+                    self.__board__.owner_at(i) == checker_color and (
+                        (checker_color == "blanco" and i > start) or
+                        (checker_color == "negro" and i < start)
+                    )
+                    for i in home
+                )
+                if hay_mas_lejos:
+                    raise ValueError(f"Necesitás exacto {need}; hay fichas más lejos en el home.")
+                dado_usado = next((d for d in self.__rolled__ if d > need), None)
+                if dado_usado is None:
+                    raise ValueError(f"No hay dado exacto {need} ni mayor disponible: {self.__rolled__}")
+
+            # quitar la ficha del punto (sale del tablero)
+            stack = self.__board__.get_point(start)
+            target = next((ch for ch in stack if ch.get_color() == checker_color), None)
+            if target is None:
+                raise ValueError("No hay ficha del color indicado en el punto de origen.")
+            self.__board__.remove_checker(start)
+
+            # consumir dado y chequear fin de turno, luego salir de move()
+            self.__rolled__.remove(dado_usado)
+            if not self.__rolled__:
+                self.end_turn()
+            return
+
+        # --- MOVIMIENTO NORMAL (movimiento de siempre) --- 
         dist = self._move_distance(start, end, checker_color)
         if dist not in self.__rolled__:
-           raise ValueError(f"El movimiento ({dist}) no coincide con la tirada: {self.__rolled__}")
-        stack = self.__board__.get_point(start)
+            raise ValueError(f"El movimiento ({dist}) no coincide con la tirada: {self.__rolled__}")
+
         # Busca una ficha del color solicitado en el punto de origen
+        stack = self.__board__.get_point(start)
         target = None
         for ch in stack:
             if ch.get_color() == checker_color:
@@ -88,8 +169,8 @@ class BackgammonGame:
                 break
         if target is None:
             raise ValueError("No hay ficha del color indicado en el punto de origen.")
+
         # --- validar el destino según reglas básicas ---
-        opponent = "negro" if checker_color == "blanco" else "blanco"
         dest_count = self.__board__.count_at(end)
         dest_owner = self.__board__.owner_at(end)
 
@@ -102,7 +183,7 @@ class BackgammonGame:
             capturada = self.__board__.remove_checker(end)
             self.__board__.send_to_bar(capturada)
 
-        # Mueve la ficha seleccionada
+        # Mueve la ficha seleccionada 
         self.__board__.move_checker(start, end, target)
 
         # Elimina el dado usado
@@ -110,6 +191,7 @@ class BackgammonGame:
         # Si se usaron todos los dados, cambiar el turno
         if not self.__rolled__:
             self.end_turn()
+
     def _home_range(self, color: str) -> range:
         return range(18, 24) if color == "blanco" else range(0, 6)
 
@@ -121,6 +203,7 @@ class BackgammonGame:
                 return False
         # además no debe haber fichas de ese color en la barra
         return len(self.__board__.get_bar()[color]) == 0
+
     def _entry_point(self, color: str, die: int) -> int:
         if color == "blanco":
             return 24 - die  # 1->23 ... 6->18
@@ -133,5 +216,5 @@ class BackgammonGame:
         """
         Indica si la partida terminó.
         """
-        return False
+        return False  
     

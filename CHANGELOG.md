@@ -121,9 +121,9 @@ configuracion de circle ci
 
 ## 16-10-2025
 ### Agregado
-- Agregue en game  helpers (_home_range, _all_in_home, _entry_point, _has_on_bar) que serian
+- Agregue en game funciones (_home_range, _all_in_home, _entry_point, _has_on_bar) que serian
   1 home_range: devuelve el cuadrante final por color 
   2 all_in_home: verifica si todas las fichas del color están en su home y sin barra 
   3 entry_point: calcula el punto de entrada desde barra según el dado 
   4 has_on_bar: indica si hay fichas del color en la barra 
-  
+- Segui agregando funciones en game para poder implementar bien las reglas del juego 
