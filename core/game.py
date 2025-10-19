@@ -218,3 +218,26 @@ class BackgammonGame:
         """
         return False  
     
+     # --- Ganador ---
+    def _any_on_board(self, color: str) -> bool:
+        """¿Queda al menos una ficha de 'color' en algún punto 0..23?"""
+        for i in range(24):
+            if self.__board__.owner_at(i) == color:
+                return True
+        return False
+
+    def has_won(self, color: str) -> bool:
+        """
+        Un color gana cuando no quedan fichas suyas en el tablero ni en la barra.
+        (Las que se fueron por bear-off ya no están en el tablero.)
+        """
+        bar = self.__board__.get_bar()
+        return not self._any_on_board(color) and len(bar[color]) == 0
+
+    def get_winner(self) -> str | None:
+        """Devuelve 'blanco' o 'negro' si ya ganó; si no hay ganador, None."""
+        if self.has_won("blanco"):
+            return "blanco"
+        if self.has_won("negro"):
+            return "negro"
+        return None

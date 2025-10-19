@@ -62,6 +62,12 @@ def _prompt_turno(game: BackgammonGame) -> str:
     visor = "[" + ", ".join(map(str, dados)) + "]" if dados else "-"
     return f"({turno} | dados: {visor}) > "
 
+def _chequear_ganador(game: BackgammonGame) -> bool:
+    ganador = game.get_winner()
+    if ganador:
+        print(f"\n¡{ganador.capitalize()} ganó la partida! 🎉")
+        return True
+    return False
 
 # ================== Programa principal ==================
 
@@ -97,6 +103,8 @@ def main() -> None:
         print("\nComienza el juego. Escribí 'ayuda' para ver comandos.")
         print("Usá 'volver' para regresar al menú, o 'salir' para cerrar la aplicación.")
         _mostrar_estado(board, game)  # Estado inicial visible
+        if _chequear_ganador(game):
+         break 
 
         while True:
             try:
@@ -133,6 +141,8 @@ def main() -> None:
                     valores = game.roll_dice()
                     print("Dados tirados:", valores)
                     _mostrar_estado(board, game)
+                    if _chequear_ganador(game):
+                     break
                     continue
 
                 # ---- mover ( move) ----
@@ -145,7 +155,9 @@ def main() -> None:
                     color   = partes[3].lower()
                     game.move(origen, destino, color)
                     print(f"Movida {color}: {origen} -> {destino}")
-                    _mostrar_estado(board, game)
+                    _mostrar_estado(board, game) 
+                    if _chequear_ganador(game):
+                     break
                     continue
 
                 # ---- reiniciar ----
@@ -166,11 +178,13 @@ def main() -> None:
                     if len(partes) == 2 and partes[0].isdigit() and partes[1].isdigit():
                         print("Parece un movimiento. Usá: mover <origen> <destino> <color:blanco|negro>")
                         continue
-
+                    
                 print("Comando no reconocido. Escribí 'ayuda' para ver opciones.")
             except Exception as e:
                 print("Error:", e)
 
+
 if __name__ == "__main__":
     # Ejecutar con: python -m cli.main
     main() 
+    

@@ -127,3 +127,9 @@ configuracion de circle ci
   3 entry_point: calcula el punto de entrada desde barra según el dado 
   4 has_on_bar: indica si hay fichas del color en la barra 
 - Segui agregando funciones en game para poder implementar bien las reglas del juego 
+
+## 19-10-2025
+### Agregado
+- Agregue en game y main la funcion para anunciar el ganador cuando no quedan fichas y cortar la partida 
+  1 agregue has_won(), get_winner()  para detectar ganador 
+  2 añadi  _chequear_ganador() y lo invoca tras 'mover' y 'tirar' si hay ganador, muestra mensaje. 
