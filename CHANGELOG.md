@@ -133,3 +133,8 @@ configuracion de circle ci
 - Agregue en game y main la funcion para anunciar el ganador cuando no quedan fichas y cortar la partida 
   1 agregue has_won(), get_winner()  para detectar ganador 
   2 añadi  _chequear_ganador() y lo invoca tras 'mover' y 'tirar' si hay ganador, muestra mensaje. 
+
+
+## 27-10-2025
+### Agregado
+- Hice correcciones en game 
