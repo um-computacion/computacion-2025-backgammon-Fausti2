@@ -4,7 +4,7 @@ Menú principal:
   2) Reglas
   3) Ayuda
   4) Salir
-
+  
 Comandos dentro de la partida:
   ayuda     -> muestra esta ayuda
   salir     -> termina la aplicación 
@@ -14,7 +14,8 @@ Comandos dentro de la partida:
   reiniciar -> vuelve a la posición inicial estándar
   mover     -> <origen> <destino> <color> -> mueve una ficha (ej.: mover 0 5 blanco)
   volver    -> regresa al menú principal
-""" 
+  jugadas   -> lista movimientos legales con los dados actuales
+"""
 
 
 from core.board import Board  
@@ -33,9 +34,7 @@ def _imprimir_ayuda() -> None:
     print("  reiniciar -> vuelve a la posición inicial estándar")
     print("  mover     -> <origen> <destino> <color> -> mueve una ficha (ej.: mover 0 5 blanco)")
     print("  volver    -> regresa al menú principal")
-
-    
-
+    print("  jugadas   -> lista movimientos legales con los dados actuales")  
 
 def _mostrar_reglas() -> None:
     reglas = """
@@ -83,7 +82,7 @@ REGLAS DE BACKGAMMON
 
 8) Final del juego
 - Gana quien primero se queda sin fichas en el tablero y en la barra.
-"""  
+"""
     print(reglas)
 
 def _mostrar_estado(board: Board, game: BackgammonGame) -> None:
@@ -120,6 +119,26 @@ def _chequear_ganador(game: BackgammonGame) -> bool:
         return True
     return False
 
+def _imprimir_jugadas(game: BackgammonGame) -> None:
+    """
+    Muestra [(start, end, die)] legales.
+    start=-1 significa 'barra'.
+    end=24 (blanco) / end=-1 (negro) significa 'sacar ficha'.
+    """
+    moves = game.legal_moves()
+    if not moves:
+        print("No hay movimientos legales con los dados actuales.")
+        return
+    print("Movimientos legales:")
+    def _pt(x: int) -> str:
+        if x == -1:
+            return "barra"
+        if x == 24:
+            return "salida(24)"
+        return str(x)
+    for i, (s, e, d) in enumerate(moves, 1):
+        print(f"  {i:>2}) {_pt(s)} -> {_pt(e)}  usando dado {d}")
+
 # ================== Programa principal ==================
 
 def main() -> None:
@@ -155,7 +174,7 @@ def main() -> None:
         print("Usá 'volver' para regresar al menú, o 'salir' para cerrar la aplicación.")
         _mostrar_estado(board, game)  # Estado inicial visible
         if _chequear_ganador(game):
-         break 
+            break
 
         while True:
             try:
@@ -191,55 +210,73 @@ def main() -> None:
                 if cmd == "tirar":
                     valores = game.roll_dice()
                     print("Dados tirados:", valores)
+
+                    # si no hay jugadas, pasa el turno solo 
+                    if not game.can_play():
+                        print("No hay movimientos legales; pasás el turno.")
+                        game.end_turn()
+                        _mostrar_estado(board, game)
+                        continue
+
                     _mostrar_estado(board, game)
-                    if _chequear_ganador(game):
-                     break
                     continue
 
-                 # ---- mover ----
+                # ---- jugadas ----
+                if cmd in {"jugadas", "legales"}:
+                    _imprimir_jugadas(game)
+                    continue
+
+                # ---- mover ----
                 if cmd in {"mover", "move"}:
                     if len(partes) != 4:
-                      print("Uso: mover <origen:int> <destino:int> <color:blanco|negro>")
-                      continue
+                        print("Uso: mover <origen:int> <destino:int> <color:blanco|negro>")
+                        continue
                     try:
-                       origen  = int(partes[1])
-                       destino = int(partes[2])
+                        origen  = int(partes[1])
+                        destino = int(partes[2])
                     except ValueError:
                         print("Origen/Destino deben ser enteros.")
                         continue
 
                     color = partes[3].lower()
                     if color not in {"blanco", "negro"}:
-                       print("Color inválido: usá 'blanco' o 'negro'.")
-                       continue
+                        print("Color inválido: usá 'blanco' o 'negro'.")
+                        continue
 
-                # validación de rango antes de llamar al juego
+                    # validación de rango antes de llamar al juego
                     if not _valid_point(origen) or not _valid_point(destino):
                         print("Punto inválido: debe ser 0..23 (o -1/24 solo para barra/bear-off).")
                         continue
 
-                # atrapá errores de reglas desde game.move(...)
+                    # atrapá errores de reglas desde game.move(...)
                     try:
-                      game.move(origen, destino, color)
+                        game.move(origen, destino, color)
                     except ValueError as e:
-                      print("Error:", e)
-                      continue
+                        print("Error:", e)
+                        continue
 
                     print(f"Movida {color}: {origen} -> {destino}")
                     _mostrar_estado(board, game)
 
-                # chequear ganador después de mover
+                    # chequear ganador después de mover
                     if _chequear_ganador(game):
-                       break
+                        break
                     continue 
-
-            # ---- reiniciar ----
+                # ---- reiniciar ----
                 if cmd == "reiniciar":
-                    board.setup_standard()
-                    print("Tablero reiniciado a la posición inicial.")
-                    _mostrar_estado(board, game)
-                    continue
+                # Recrear TODO: tablero, jugadores, dados y el objeto game
+                   board = Board()
+                   board.setup_standard()
+                   blanco = Player("Blanco", "blanco")
+                   negro  = Player("Negro", "negro")
+                   dice   = Dice()
+                   game   = BackgammonGame(board, blanco, negro, dice)
+                   print("Partida reiniciada: tablero, turno y dados en estado inicial.")
+                   _mostrar_estado(board, game)
+                   continue
 
+                    
+                # atajos numéricos: sugerencia de  mover <origen> <destino> <color> 
                 if cmd.isdigit():
                     if len(partes) == 3 and partes[0].isdigit() and partes[1].isdigit():
                         origen  = partes[0]
@@ -251,13 +288,11 @@ def main() -> None:
                     if len(partes) == 2 and partes[0].isdigit() and partes[1].isdigit():
                         print("Parece un movimiento. Usá: mover <origen> <destino> <color:blanco|negro>")
                         continue
-                    
+
                 print("Comando no reconocido. Escribí 'ayuda' para ver opciones.")
             except Exception as e:
                 print("Error:", e)
 
-
 if __name__ == "__main__":
-    # Ejecutar con: python -m cli.main
-    main() 
-
+    # Ejecutar con: python -m cli.main 
+    main()  
