@@ -139,3 +139,4 @@ configuracion de circle ci
 ### Agregado
 - Hice correcciones en game 
 - Agregue las reglas en main 
+- Agregue mas funciones en main en la parte de move 

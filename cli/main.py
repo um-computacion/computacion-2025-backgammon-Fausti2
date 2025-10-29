@@ -39,9 +39,9 @@ def _imprimir_ayuda() -> None:
 
 def _mostrar_reglas() -> None:
     reglas = """
-========================
-REGLAS DE BACKGAMMON (resumen)
-========================
+
+REGLAS DE BACKGAMMON 
+
 
 1) Tablero y objetivo
 - Dos jugadores (blanco y negro), 15 fichas por color.
@@ -53,7 +53,7 @@ REGLAS DE BACKGAMMON (resumen)
 
 3) Tiradas y dobles
 - En tu turno tirás dos dados (comando: tirar).
-- Si sale doble (p. ej. 3-3), tenés cuatro movimientos de 3.
+- Si sale doble (ej: 3-3), tenés cuatro movimientos de 3.
 
 4) Movimientos válidos
 - Podés usar cada dado con la MISMA ficha o con fichas distintas.
@@ -109,6 +109,9 @@ def _prompt_turno(game: BackgammonGame) -> str:
     dados = game.get_rolled_values()
     visor = "[" + ", ".join(map(str, dados)) + "]" if dados else "-"
     return f"({turno} | dados: {visor}) > "
+
+def _valid_point(p: int) -> bool:
+    return (p in range(24)) or (p in (-1, 24))  # -1 negro sale, 24 blanco sale
 
 def _chequear_ganador(game: BackgammonGame) -> bool:
     ganador = game.get_winner()
@@ -193,22 +196,44 @@ def main() -> None:
                      break
                     continue
 
-                # ---- mover ( move) ----
+                 # ---- mover ----
                 if cmd in {"mover", "move"}:
                     if len(partes) != 4:
-                        print("Uso: mover <origen:int> <destino:int> <color:blanco|negro>")
+                      print("Uso: mover <origen:int> <destino:int> <color:blanco|negro>")
+                      continue
+                    try:
+                       origen  = int(partes[1])
+                       destino = int(partes[2])
+                    except ValueError:
+                        print("Origen/Destino deben ser enteros.")
                         continue
-                    origen  = int(partes[1])
-                    destino = int(partes[2])
-                    color   = partes[3].lower()
-                    game.move(origen, destino, color)
-                    print(f"Movida {color}: {origen} -> {destino}")
-                    _mostrar_estado(board, game) 
-                    if _chequear_ganador(game):
-                     break
-                    continue
 
-                # ---- reiniciar ----
+                    color = partes[3].lower()
+                    if color not in {"blanco", "negro"}:
+                       print("Color inválido: usá 'blanco' o 'negro'.")
+                       continue
+
+                # validación de rango antes de llamar al juego
+                    if not _valid_point(origen) or not _valid_point(destino):
+                        print("Punto inválido: debe ser 0..23 (o -1/24 solo para barra/bear-off).")
+                        continue
+
+                # atrapá errores de reglas desde game.move(...)
+                    try:
+                      game.move(origen, destino, color)
+                    except ValueError as e:
+                      print("Error:", e)
+                      continue
+
+                    print(f"Movida {color}: {origen} -> {destino}")
+                    _mostrar_estado(board, game)
+
+                # chequear ganador después de mover
+                    if _chequear_ganador(game):
+                       break
+                    continue 
+
+            # ---- reiniciar ----
                 if cmd == "reiniciar":
                     board.setup_standard()
                     print("Tablero reiniciado a la posición inicial.")
