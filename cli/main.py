@@ -12,7 +12,8 @@ Comandos dentro de la partida:
   turno     -> muestra de quién es el turno
   tirar     -> tira los dados y muestra el resultado
   reiniciar -> vuelve a la posición inicial estándar
-  mover <origen> <destino> <color> -> mueve una ficha (ej.: mover 0 5 blanco)
+  mover     -> <origen> <destino> <color> -> mueve una ficha (ej.: mover 0 5 blanco)
+  volver    -> regresa al menú principal
 """ 
 
 
@@ -30,13 +31,60 @@ def _imprimir_ayuda() -> None:
     print("  turno     -> muestra de quién es el turno")
     print("  tirar     -> tira los dados y muestra el resultado")
     print("  reiniciar -> vuelve a la posición inicial estándar")
-    print("  mover <origen> <destino> <color> -> mueve una ficha (ej.: mover 0 5 blanco)") 
+    print("  mover     -> <origen> <destino> <color> -> mueve una ficha (ej.: mover 0 5 blanco)")
+    print("  volver    -> regresa al menú principal")
 
+    
 
 
 def _mostrar_reglas() -> None:
-    # completar luego
-    print("REGLAS (a completar):") 
+    reglas = """
+========================
+REGLAS DE BACKGAMMON (resumen)
+========================
+
+1) Tablero y objetivo
+- Dos jugadores (blanco y negro), 15 fichas por color.
+- El objetivo es sacar (bear-off) todas tus fichas del tablero antes que el rival.
+
+2) Sentido de movimiento
+- Blanco mueve hacia índices MAYORES (de 0 → 23).
+- Negro mueve hacia índices MENORES (de 23 → 0).
+
+3) Tiradas y dobles
+- En tu turno tirás dos dados (comando: tirar).
+- Si sale doble (p. ej. 3-3), tenés cuatro movimientos de 3.
+
+4) Movimientos válidos
+- Podés usar cada dado con la MISMA ficha o con fichas distintas.
+- No podés mover a un punto con 2+ fichas del rival (punto bloqueado).
+- Si el destino tiene 1 ficha rival, la COMÉS: esa ficha va a la barra.
+
+5) Barra (fichas comidas)
+- Si tenés fichas en la barra, estás OBLIGADO a reingresar antes de cualquier otro movimiento.
+- Para entrar desde la barra:
+  * BLANCO: 'mover -1 <destino> blanco' (destino = 24 - dado → 23..18).
+  * NEGRO : 'mover -1 <destino> negro'  (destino = dado - 1 → 0..5).
+- No podés entrar a un punto bloqueado (2+ rivales). Si hay 1 rival, lo comés.
+
+6) Uso de dados (obligatoriedad)
+- Debés usar la mayor cantidad de dados posible.
+- Si sólo podés usar uno, usá el movimiento MÁS alto.
+- Cuando se consumen todos los dados, el turno cambia.
+
+7) Bear-off (sacar fichas)
+- Sólo podés sacar fichas cuando TODAS las tuyas están en el cuadrante final:
+  * BLANCO: 18..23
+  * NEGRO : 0..5
+- Se saca con número exacto (distancia al borde). Se permite un número mayor
+  sólo si no hay fichas más lejos que la que querés sacar.
+  * BLANCO: destino 24
+  * NEGRO : destino -1
+
+8) Final del juego
+- Gana quien primero se queda sin fichas en el tablero y en la barra.
+"""  
+    print(reglas)
 
 def _mostrar_estado(board: Board, game: BackgammonGame) -> None:
     """Imprime turno, dados disponibles y el tablero ASCII."""
@@ -187,4 +235,4 @@ def main() -> None:
 if __name__ == "__main__":
     # Ejecutar con: python -m cli.main
     main() 
-    
+

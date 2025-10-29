@@ -135,6 +135,7 @@ configuracion de circle ci
   2 añadi  _chequear_ganador() y lo invoca tras 'mover' y 'tirar' si hay ganador, muestra mensaje. 
 
 
-## 27-10-2025
+## 28-10-2025
 ### Agregado
 - Hice correcciones en game 
+- Agregue las reglas en main 
