@@ -2,6 +2,7 @@ from core.board import Board
 from core.player import Player
 from core.dice import Dice
 
+
 class BackgammonGame:
     """
     Coordina el flujo general del juego.
@@ -235,4 +236,82 @@ class BackgammonGame:
             return "blanco"
         if self.has_won("negro"):
             return "negro"
-        return None 
+        return None
+
+    # devuelve [(start, end, die)] legales para el color al turno
+    def legal_moves(self) -> list[tuple[int, int, int]]:
+        color = self.__current__.get_color()
+        dice = list(self.__rolled__)
+        if not dice:
+            return []
+
+        opponent = "negro" if color == "blanco" else "blanco"
+        moves: list[tuple[int, int, int]] = []
+
+        # --- 1) PRIORIDAD: si hay fichas en la barra, sólo se puede entrar ---
+        if self._has_on_bar(color):
+            for d in set(dice):  # para can_play alcanza con 1 por valor
+                end = self._entry_point(color, d)
+                # destino válido si NO está bloqueado (0, propio, o 1 rival)
+                dest_owner = self.__board__.owner_at(end)
+                dest_count = self.__board__.count_at(end)
+                blocked = (dest_owner == opponent and dest_count >= 2)
+                if not blocked:
+                    moves.append((-1, end, d))
+            return moves
+
+        # --- 2) BEAR-OFF disponible si todas en home ---
+        all_home = self._all_in_home(color)
+
+        # rango de índices según color/dirección
+        pts = range(24) if color == "blanco" else range(23, -1, -1)
+
+        for i in pts:
+            if self.__board__.owner_at(i) != color:
+                continue
+
+            for d in set(dice):
+                if color == "blanco":
+                    end = i + d
+                    # movimiento normal dentro del tablero
+                    if 0 <= end <= 23:
+                        dest_owner = self.__board__.owner_at(end)
+                        dest_count = self.__board__.count_at(end)
+                        if not (dest_owner == opponent and dest_count >= 2):
+                            moves.append((i, end, d))
+                    elif all_home and end == 24:
+                        # exacto para salir
+                        moves.append((i, 24, d))
+                    elif all_home and end > 24:
+                        # mayor permitido sólo si no hay fichas "más lejos" en home
+                        hay_mas_lejos = any(
+                            self.__board__.owner_at(j) == color and j > i
+                            for j in self._home_range(color)
+                        )
+                        if not hay_mas_lejos:
+                            moves.append((i, 24, d))
+
+                else:  # negro
+                    end = i - d
+                    if 0 <= end <= 23:
+                        dest_owner = self.__board__.owner_at(end)
+                        dest_count = self.__board__.count_at(end)
+                        if not (dest_owner == opponent and dest_count >= 2):
+                            moves.append((i, end, d))
+                    elif all_home and end == -1:
+                        moves.append((i, -1, d))
+                    elif all_home and end < -1:
+                        hay_mas_lejos = any(
+                            self.__board__.owner_at(j) == color and j < i
+                            for j in self._home_range(color)
+                        )
+                        if not hay_mas_lejos:
+                            moves.append((i, -1, d))
+
+        return moves
+
+    # [NUEVO]
+    def can_play(self) -> bool:
+        """Indica si el jugador al turno tiene al menos un movimiento legal con los dados activos."""
+        return len(self.legal_moves()) > 0 
+    

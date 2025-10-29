@@ -139,4 +139,8 @@ configuracion de circle ci
 ### Agregado
 - Hice correcciones en game 
 - Agregue las reglas en main 
+
+## 29-10-2025
+### Agregado
 - Agregue mas funciones en main en la parte de move 
+- Agregue en game legal_moves y can_play 
