@@ -109,3 +109,81 @@ class Board:
         drop(12, "negro", 5)
         drop(7,  "negro", 3)
         drop(5,  "negro", 5)
+
+    def get_quadrant(self, idx: int) -> int:
+        """Devuelve el número de cuadrante (1..4) del punto idx."""
+        self._check_index(idx)
+        if 0 <= idx <= 5:
+            return 1
+        if 6 <= idx <= 11:
+            return 2
+        if 12 <= idx <= 17:
+            return 3
+        return 4  # 18..23
+
+    def to_ascii(self, niveles: int = 5) -> str:
+        """
+        Dibuja el tablero en ASCII con cuadrantes y pilas de fichas.
+        - Fila superior: puntos 12..23 (pilas hacia abajo)
+        - Fila inferior: puntos 11..00 (pilas hacia arriba)
+        - Cada celda muestra hasta `niveles` fichas: B (blanco) / N (negro)
+        - Muestra la barra y separadores de cuadrantes
+        """
+        CELL = 2  # ancho fijo para cada celda (coincide con el ancho de los índices)
+
+        def ch(color: str | None) -> str:
+            return "B" if color == "blanco" else ("N" if color == "negro" else " ")
+
+        top = list(range(12, 24))      # 3er y 4to cuadrante
+        bot = list(range(11, -1, -1))  # 2do y 1er cuadrante
+
+        def mk_row(indices: list[int], down: bool) -> list[str]:
+            grid = [[" "]*len(indices) for _ in range(niveles)]
+            for c, i in enumerate(indices):
+                color = self.owner_at(i)
+                h = min(len(self.get_point(i)), niveles)
+                if h <= 0:
+                    continue
+                sym = ch(color)
+                if down:
+                    for r in range(h):  # llena 0..h-1 desde arriba
+                        grid[r][c] = sym
+                else:
+                    for r in range(niveles-1, niveles-h-1, -1):  # llena desde abajo
+                        grid[r][c] = sym
+
+            lines: list[str] = []
+            for r in range(niveles):
+                cells = [f"{grid[r][c]:>{CELL}}" for c in range(len(indices))] 
+                if len(indices) == 12:
+                    cells.insert(6, "│")
+                lines.append(" ".join(cells))
+            return lines
+
+        # Encabezados con separadores de cuadrantes
+        def idx_line(indices: list[int]) -> str:
+            parts = [f"{i:>{CELL}}" for i in indices]
+            if len(indices) == 12:
+                parts.insert(6, "│")  # divide 6 y 6
+            return " ".join(parts)
+
+        top_idx = idx_line(top)
+        bot_idx = idx_line(bot)
+
+        top_rows = mk_row(top, down=True)
+        bot_rows = mk_row(bot, down=False)
+
+        bar = self.get_bar()
+        out: list[str] = []
+        out.append("Cuadrantes (1..4):   [ 3 | 4 ] arriba   /   [ 2 | 1 ] abajo")
+        out.append("Arriba (12→23):")
+        out.append(top_idx)
+        out.extend(top_rows)
+        out.append("────────────────────────────────────────────────────────")
+        out.append("Abajo  (11→00):")
+        out.append(bot_idx)
+        out.extend(bot_rows)
+        out.append("────────────────────────────────────────────────────────")
+        out.append(f"Barra: B={len(bar['blanco'])} | N={len(bar['negro'])}")
+        return "\n".join(out) 
+    
