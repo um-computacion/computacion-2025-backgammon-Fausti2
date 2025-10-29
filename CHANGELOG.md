@@ -146,3 +146,5 @@ configuracion de circle ci
 - Agregue en game legal_moves y can_play 
 - Perfeccionando main agregue la funcion para ver las jugadas que se pueden hacer y arregle la funcion para reiniciar y entre otras cosas 
 - Hice correcciones sobre main y cli y lo deje como corresponde 
+- Cree el archivo test_cli.py 
+- Mejore y amplie los test de game 

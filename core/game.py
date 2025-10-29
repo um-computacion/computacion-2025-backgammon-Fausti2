@@ -310,7 +310,6 @@ class BackgammonGame:
 
         return moves
 
-    # [NUEVO]
     def can_play(self) -> bool:
         """Indica si el jugador al turno tiene al menos un movimiento legal con los dados activos."""
         return len(self.legal_moves()) > 0 
