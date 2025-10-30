@@ -148,3 +148,8 @@ configuracion de circle ci
 - Hice correcciones sobre main y cli y lo deje como corresponde 
 - Cree el archivo test_cli.py 
 - Mejore y amplie los test de game 
+
+
+## 30-10-2025
+### Agregado 
+- Realice el codigo de test_cli y mejore game 
