@@ -119,8 +119,8 @@ sólo si no hay fichas más lejos que la que querés sacar.
         return f"({turno} | dados: {visor}) > "
 
     
-    def _valid_point(p: int) -> bool:
-        return (p in range(24)) or (p in (-1, 24))  # -1 negro sale, 24 blanco sale
+    def _valid_point(self, p: int) -> bool:
+     return (p in range(24)) or (p in (-1, 24))  # -1 negro sale, 24 blanco sale
 
     def _chequear_ganador(self) -> bool:
         ganador = self.game.get_winner()
@@ -276,4 +276,3 @@ sólo si no hay fichas más lejos que la que querés sacar.
                     print("Comando no reconocido. Escribí 'ayuda' para ver opciones.")
                 except Exception as e:
                     print("Error:", e)  
-                    

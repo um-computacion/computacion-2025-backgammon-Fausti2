@@ -152,4 +152,5 @@ configuracion de circle ci
 
 ## 30-10-2025
 ### Agregado 
-- Realice el codigo de test_cli y mejore game 
+- Realice el codigo de test_cli y mejore core/game 
+- Mejore y amplie todos los test necesarios para cubrir mas del 90% 

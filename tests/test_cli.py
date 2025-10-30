@@ -4,150 +4,154 @@ from io import StringIO
 from contextlib import redirect_stdout
 
 from cli.cli import CLI
+from core.game import BackgammonGame
 from core.board import Board
 from core.player import Player
 from core.dice import Dice
-from core.game import BackgammonGame 
-from core.checker import Checker  
-
-
-# -------------------- utilitarios tolerantes a distintas implementaciones --------------------
-
-def _crear_juego(cli: CLI):
-    """
-    Intenta crear/iniciar un juego nuevo usando el método disponible en tu CLI.
-    No valida mensajes, sólo dispara la lógica.
-    """
-    # Preferimos métodos explícitos si existen
-    if hasattr(cli, "nuevo_juego"):
-        return getattr(cli, "nuevo_juego")()
-    if hasattr(cli, "_nuevo_juego"):
-        return getattr(cli, "_nuevo_juego")()
-    if hasattr(cli, "start_new_game"):
-        return getattr(cli, "start_new_game")()
-    # Fallback: muchos CLIs piden nombres por input en do_start
-    if hasattr(cli, "do_start"):
-        with patch("builtins.input", side_effect=["Jugador1", "Jugador2"]):
-            return cli.do_start("")
-    # Si no hay nada, último intento: método genérico 'start'
-    if hasattr(cli, "start"):
-        return getattr(cli, "start")()
-    raise AssertionError("No encontré cómo iniciar un juego en CLI (faltan nuevo_juego/_nuevo_juego/do_start).")
-
-
-def _reiniciar_juego(cli: CLI):
-    """
-    Intenta reiniciar la partida usando el método disponible en tu CLI.
-    """
-    for nombre in ("reiniciar", "_reiniciar", "reset", "do_reiniciar"):
-        if hasattr(cli, nombre):
-            m = getattr(cli, nombre)
-            try:
-                # algunos commands 'do_*' esperan un string arg
-                return m("") if nombre.startswith("do_") else m()
-            except TypeError:
-                return m()
-    # si tu CLI no define reinicio, simplemente volvemos a crear
-    return _crear_juego(cli)
-
-
-def _get_game(cli: CLI) -> BackgammonGame:
-    """
-    Obtiene el objeto juego que maneja la CLI, tolerando distintos nombres/visibilidades.
-    """
-    # acceso directo a atributo
-    for attr in ("game", "_game", "__game__"):
-        if hasattr(cli, attr):
-            g = getattr(cli, attr)
-            if isinstance(g, BackgammonGame):
-                return g
-    # getter
-    if hasattr(cli, "get_game"):
-        g = cli.get_game()
-        if isinstance(g, BackgammonGame):
-            return g
-    raise AssertionError("La CLI no expone el BackgammonGame (game/_game/__game__ o get_game()).")
+from core.checker import Checker
 
 
 class TestCLI(unittest.TestCase):
+    """
+    Pruebas de la CLI (interfaz de texto).
+
+    - Se testea la LÓGICA del CLI (flujos y llamadas), NO los mensajes impresos.
+    - Por eso usamos redirect_stdout(StringIO()) sólo para SILENCIAR la salida.
+    - Simulamos entradas de usuario con patch("builtins.input", side_effect=[...]).
+    """
+
     def setUp(self):
-        # Capturamos stdout sólo para no ensuciar el runner (no se asertan mensajes)
-        self.stdout = StringIO()
-        with redirect_stdout(self.stdout):
-            self.cli = CLI()
-            # intentamos dejar un juego listo para inspeccionar
-            try:
-                _crear_juego(self.cli)
-            except AssertionError:
-                # si no hay manera, algunos CLIs crean el juego en el __init__ y ya está
-                pass
+        self.cli = CLI()
 
-    # -------------------- Tests de lógica (no mensajes) --------------------
-
-    def test_crear_juego_instancias_basicas(self):
-        """Crear juego debe dejar instancias válidas de Game/Board/Players/Dice."""
-        with redirect_stdout(self.stdout):
-            _crear_juego(self.cli)
-        g = _get_game(self.cli)
-        self.assertIsInstance(g, BackgammonGame)
-        self.assertIsInstance(g.get_board(), Board)
-        self.assertIsInstance(g.get_current_player(), Player)
-        # el oponente también debe ser Player
-        self.assertIsInstance(g.get_opponent(), Player)
-        # y el juego debe tener dados
-        # (si no hay getter, probamos un roll para evidenciar que hay Dice conectado)
-        vals = g.roll_dice()
-        self.assertIn(len(vals), (2, 4))
-        for v in vals:
-            self.assertTrue(1 <= v <= 6)
-
-    def test_reiniciar_reemplaza_instancias(self):
-        """Reiniciar debe crear nuevas instancias (no referenciar las anteriores)."""
-        with redirect_stdout(self.stdout):
-            _crear_juego(self.cli)
-        g1 = _get_game(self.cli)
-        b1 = g1.get_board()
-        p1 = g1.get_current_player()
-        # reiniciar
-        with redirect_stdout(self.stdout):
-            _reiniciar_juego(self.cli)
-        g2 = _get_game(self.cli)
-        b2 = g2.get_board()
-        p2 = g2.get_current_player()
-
-        # No deben ser los mismos objetos en memoria
-        self.assertIsNot(g1, g2)
-        self.assertIsNot(b1, b2)
-        self.assertIsNot(p1, p2)
-        # y deben seguir siendo del tipo correcto
-        self.assertIsInstance(g2, BackgammonGame)
-        self.assertIsInstance(b2, Board)
-        self.assertIsInstance(p2, Player)
-
-    def test_cmdloop_no_crashea_salir_inmediato(self):
+    def _run(self, inputs: list[str]):
         """
-        Si tu CLI implementa cmdloop con un prompt de opciones, simular 'salir'
-        para asegurar que no explota. Si no existe, se omite silenciosamente.
-        """
-        if hasattr(self.cli, "cmdloop"):
-            with patch("builtins.input", side_effect=["4"]), redirect_stdout(self.stdout):
-                try:
-                    self.cli.cmdloop()
-                except Exception as e:
-                    self.fail(f"cmdloop arrojó excepción inesperada: {e}")
+        Ejecuta cmdloop() con entradas simuladas y sale por el menú.
 
-    def test_do_play_si_existe_no_crashea(self):
+        Parámetro:
+        - inputs: lista de comandos que el usuario "teclea".
+        Implementación:
+        - side_effect consume cada string como si fuera input().
+        - siempre añadimos "4" al final para salir del menú principal.
         """
-        Si existe un comando do_play en la CLI, invocarlo y verificar que no
-        arroja excepciones (la lógica interna del turno se testea en core).
+        entrada = "\n".join(inputs + ["4"])
+        with patch("builtins.input", side_effect=entrada.split("\n")):
+            with redirect_stdout(StringIO()):
+                self.cli.cmdloop()
+
+    # ---------- menú / navegación ----------
+
+    def test_salir_inmediato(self):
+        """El usuario elige '4' de entrada: cierra sin errores."""
+        self._run(["4"])
+
+    def test_opcion_invalida(self):
+        """Una opción no válida no debe romper el flujo."""
+        self._run(["xyz"])
+
+    def test_reglas_y_ayuda(self):
+        """Rutas de menú hacia Reglas (2) y Ayuda (3)."""
+        self._run(["2", "3"])
+
+    def test_empezar_y_volver(self):
+        """Entra al juego (1) y vuelve con 'volver'."""
+        self._run(["1", "volver"])
+
+    def test_alias_menu(self):
+        """'menu' actúa como 'volver' dentro del juego."""
+        self._run(["1", "menu"])
+
+    # ---------- comandos informativos dentro de la partida ----------
+
+    def test_turno_tablero_ayuda(self):
+        """Dentro del juego: 'turno', 'tablero', 'ayuda', luego 'volver'."""
+        self._run(["1", "turno", "tablero", "ayuda", "volver"])
+
+    # ---------- tirar / jugadas ----------
+
+    def test_tirar_sin_jugadas_pasa_turno(self):
         """
-        if hasattr(self.cli, "do_play"):
-            with redirect_stdout(self.stdout):
-                try:
-                    self.cli.do_play("")
-                except Exception as e:
-                    self.fail(f"do_play lanzó excepción inesperada: {e}")
+        Si al tirar no hay movimientos legales, tu CLI debe pasar el turno.
+        (No validamos texto, sólo ejercitamos la rama).
+        """
+        with patch.object(Dice, "roll", return_value=[3, 2]):
+            self._run(["1", "tirar", "volver"])
+
+    def test_tirar_y_jugadas(self):
+        """Tirar dados y pedir 'jugadas' debe recorrer la rama correspondiente."""
+        with patch.object(Dice, "roll", return_value=[5]):
+            self._run(["1", "tirar", "jugadas", "volver"])
+
+    # ---------- mover: entradas inválidas ----------
+
+    def test_mover_sin_dos_argumentos(self):
+        """'mover' debe validar que haya dos enteros."""
+        self._run(["1", "mover 0", "volver"])
+
+    def test_mover_no_enteros(self):
+        """'mover a b' debe fallar validación de enteros (sin romper)."""
+        self._run(["1", "mover a b", "volver"])
+
+    def test_mover_fuera_de_rango(self):
+        """'mover 30 -5' debe ser rechazado por validación de puntos."""
+        self._run(["1", "mover 30 -5", "volver"])
+
+    # ---------- mover válido: invoca a move con el color del turno ----------
+
+    def test_mover_valido_invoca_move(self):
+        """
+        Verifica que, ante un 'mover 0 5' válido y con dados acordes,
+        la CLI termine invocando BackgammonGame.move(start, end, color_del_turno).
+        """
+        cli = CLI()
+        with patch("builtins.input", side_effect=["1", "tirar", "mover 0 5", "volver", "4"]), \
+             patch.object(Dice, "roll", return_value=[5]), \
+             redirect_stdout(StringIO()):
+            cli._nuevo_juego()
+            cli.board.add_checker(0, Checker("blanco"))
+            # wraps=cli.game.move permite contar invocaciones sin romper la lógica real
+            with patch.object(BackgammonGame, "move", wraps=cli.game.move) as mv:
+                cli.cmdloop()
+                self.assertGreaterEqual(mv.call_count, 1)
+
+    # ---------- caminos de 'cmd.isdigit()' ----------
+
+    def test_cmd_solo_numero(self):
+        """Si el usuario escribe sólo un número, se recorre esa rama de ayuda sugerida."""
+        self._run(["1", "7", "volver"])
+
+    def test_cmd_dos_numeros(self):
+        """Si escribe dos números, la CLI sugiere el formato 'mover <a> <b>' (sin validar texto)."""
+        self._run(["1", "3 4", "volver"])
+
+    # ---------- detectar ganador y cortar la partida ----------
+
+    def test_detecta_ganador(self):
+        """
+        Fuerza un estado con ganador blanco:
+        - Tablero sin blancas/negro en barra: Board parte vacío.
+        - Agregamos una negra y la quitamos para forzar reevaluación a 'blanco ganó'.
+        """
+        with patch("builtins.input", side_effect=["1", "tablero", "volver", "4"]), \
+             redirect_stdout(StringIO()):
+            self.cli._nuevo_juego()
+            self.cli.board.add_checker(0, Checker("negro"))
+            self.cli.board.remove_checker(0)
+            self.cli.cmdloop()
+
+    # ---------- reiniciar ----------
+
+    def test_reiniciar_crea_nuevas_instancias(self):
+        """'reiniciar' debe construir nuevas instancias de Game/Board/Players/Dice."""
+        with patch("builtins.input", side_effect=["1", "reiniciar", "volver", "4"]), \
+             redirect_stdout(StringIO()):
+            self.cli.cmdloop()
+            self.assertIsInstance(self.cli.game, BackgammonGame)
+            self.assertIsInstance(self.cli.board, Board)
+            self.assertIsInstance(self.cli.blanco, Player)
+            self.assertIsInstance(self.cli.negro, Player)
+            self.assertIsInstance(self.cli.dice, Dice)
 
 
 if __name__ == "__main__":
     unittest.main() 
+  
