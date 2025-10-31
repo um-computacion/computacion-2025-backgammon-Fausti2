@@ -157,3 +157,4 @@ configuracion de circle ci
 - Cree el archivo constans.py y realize su respectivo codigo 
 - Cree el archivo renderer y empece a realizar las funciones 
 - Cree el archivo game_ui.py y comence  a realizar las funciones 
+- Integre en main la interfaz grafica 
