@@ -2,7 +2,11 @@
 Módulo de renderizado del tablero de Backgammon.
 """
 
-import pygame
+try:
+    import pygame 
+except ImportError:
+    pygame = None
+
 from .constants import *
 
 
@@ -10,6 +14,9 @@ class BoardRenderer:
     """Clase encargada de renderizar el tablero y las fichas."""
     
     def __init__(self, screen, font):
+        if pygame is None:
+            raise ImportError("Pygame no está instalado. Ejecuta: pip install pygame")
+        
         self.screen = screen
         self.font = font
         self.hitmap = {}
@@ -36,7 +43,6 @@ class BoardRenderer:
     def _count_at_point(self, board):
         """
         Devuelve, para cada punto 0..23, (color_owner, count).
-        Usa board.owner_at(i) y len(board.get_point(i)).
         """
         data = []
         for i in range(24):
@@ -51,14 +57,6 @@ class BoardRenderer:
     def render(self, game, last_msg=None, selected_from=None):
         """
         Dibuja el tablero completo y devuelve un hitmap con las áreas clickeables.
-        
-        Args:
-            game: Instancia del juego BackgammonGame
-            last_msg: Mensaje de error o información a mostrar
-            selected_from: Índice del punto seleccionado (para highlight)
-        
-        Returns:
-            dict: Mapa de {índice: Rect} para detección de clicks
         """
         self.screen.fill(BG)
         self.hitmap = {}
@@ -112,13 +110,11 @@ class BoardRenderer:
     
     def _render_labels(self):
         """Renderiza las etiquetas numéricas de los puntos."""
-        # Etiquetas superiores (12..1)
         top_labels = [str(i) for i in range(12, 0, -1)]
         for k, s in enumerate(top_labels):
             cx = MARGIN + k * POINT_W + POINT_W // 2
             self._draw_text(s, (cx, MARGIN + 8), center=True)
         
-        # Etiquetas inferiores (13..24)
         bot_labels = [str(i) for i in range(13, 25)]
         for k, s in enumerate(bot_labels):
             cx = MARGIN + k * POINT_W + POINT_W // 2
@@ -128,8 +124,8 @@ class BoardRenderer:
         """Renderiza las fichas en el tablero."""
         counts = self._count_at_point(board)
         
-        # Parte superior: 11..0 (visual 12..1), apilado hacia abajo
-        for layer in range(5):  # 0..4
+        # Parte superior: 11..0
+        for layer in range(5):
             for k, idx in enumerate(range(11, -1, -1)):
                 owner, count = counts[idx]
                 if count <= layer or owner is None:
@@ -142,12 +138,11 @@ class BoardRenderer:
                 
                 pygame.draw.circle(self.screen, col, (cx, y0), max(6, rad))
                 
-                # Mostrar número si hay más de 5 fichas
                 if layer == 4 and count > 5:
                     self._draw_text(str(count - 4), (cx, y0),
                                   center=True, color=HILIGHT)
         
-        # Parte inferior: 12..23 (visual 13..24), apilado hacia arriba
+        # Parte inferior: 12..23
         for layer in range(5):
             for k, idx in enumerate(range(12, 24)):
                 owner, count = counts[idx]
@@ -162,7 +157,6 @@ class BoardRenderer:
                 
                 pygame.draw.circle(self.screen, col, (cx, y0), max(6, rad))
                 
-                # Mostrar número si hay más de 5 fichas
                 if layer == 4 and count > 5:
                     self._draw_text(str(count - 4), (cx, y0),
                                   center=True, color=HILIGHT)
@@ -182,16 +176,8 @@ class BoardRenderer:
             self._draw_text(last_msg, (MARGIN + 280, HEIGHT - 28), color=ERROR)
     
     def hit_test(self, pos):
-        """
-        Detecta qué punto del tablero fue clickeado.
-        
-        Args:
-            pos: Tupla (x, y) con la posición del click
-        
-        Returns:
-            int o None: Índice del punto clickeado o None
-        """
+        """Detecta qué punto del tablero fue clickeado."""
         for idx, rect in self.hitmap.items():
             if rect.collidepoint(pos):
                 return idx
-        return None
+        return None 

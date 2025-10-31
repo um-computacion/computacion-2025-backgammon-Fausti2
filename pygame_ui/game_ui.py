@@ -3,7 +3,20 @@ Interfaz principal de usuario con Pygame para Backgammon.
 """
 
 import sys
-import pygame
+
+try:
+    import pygame 
+except ImportError:
+    print("\n" + "="*50)
+    print("ERROR: Pygame no está instalado")
+    print("="*50)
+    print("Para instalar pygame, ejecuta en la terminal:")
+    print("  pip install pygame")
+    print("o")
+    print("  pip3 install pygame")
+    print("="*50 + "\n")
+    sys.exit(1)
+
 from .constants import *
 from .renderer import BoardRenderer
 
@@ -11,13 +24,13 @@ from .renderer import BoardRenderer
 class BackgammonUI:
     """Clase principal que maneja la interfaz gráfica del juego."""
     
-    def __init__(self, game):
-        """
-        Inicializa la interfaz gráfica.
+    def __init__(self):
+        """Inicializa la interfaz gráfica y crea el juego."""
+        from core.board import Board
+        from core.player import Player
+        from core.dice import Dice
+        from core.game import BackgammonGame
         
-        Args:
-            game: Instancia de BackgammonGame
-        """
         pygame.init()
         pygame.display.set_caption("Backgammon (Pygame)")
         
@@ -25,7 +38,14 @@ class BackgammonUI:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, FONT_SIZE)
         
-        self.game = game
+        # Crear el juego internamente
+        board = Board()
+        board.setup_standard()
+        white = Player("Blanco", "blanco")
+        black = Player("Negro", "negro")
+        dice = Dice()
+        self.game = BackgammonGame(board, white, black, dice)
+        
         self.renderer = BoardRenderer(self.screen, self.font)
         
         self.last_msg = None
@@ -64,11 +84,9 @@ class BackgammonUI:
         
         if idx is not None:
             if self.selected_from is None:
-                # Primer click: seleccionar origen
                 self.selected_from = idx
                 self.last_msg = None
             else:
-                # Segundo click: intentar mover
                 self._try_move(self.selected_from, idx)
                 self.selected_from = None
     
@@ -98,7 +116,7 @@ class BackgammonUI:
             self.last_msg = str(ex)
     
     def _show_legal_moves(self):
-        """Muestra las jugadas legales en consola (debug)."""
+        """Muestra las jugadas legales en consola."""
         print("Jugadas legales:", self.game.legal_moves())
     
     def _try_move(self, origen, destino):
@@ -123,28 +141,4 @@ class BackgammonUI:
             self.clock.tick(FPS)
         
         pygame.quit()
-        sys.exit()
-
-
-def main():
-    """Punto de entrada para ejecutar el juego con UI de Pygame."""
-    from core.board import Board
-    from core.player import Player
-    from core.dice import Dice
-    from core.game import BackgammonGame
-    
-    # Crear el juego
-    board = Board()
-    board.setup_standard()
-    white = Player("Blanco", "blanco")
-    black = Player("Negro", "negro")
-    dice = Dice()
-    game = BackgammonGame(board, white, black, dice)
-    
-    # Crear y ejecutar la interfaz
-    ui = BackgammonUI(game)
-    ui.run()
-
-
-if __name__ == "__main__":
-    main()
+        sys.exit() 

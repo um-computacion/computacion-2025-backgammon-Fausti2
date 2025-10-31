@@ -158,3 +158,7 @@ configuracion de circle ci
 - Cree el archivo renderer y empece a realizar las funciones 
 - Cree el archivo game_ui.py y comence  a realizar las funciones 
 - Integre en main la interfaz grafica 
+
+## 31-10-2025
+### Agregado 
+- Cambie y mejore los archivos de pygame_ui y Actualmente ya esta funcionando Pygame. 
