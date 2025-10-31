@@ -156,3 +156,4 @@ configuracion de circle ci
 - Mejore y amplie todos los test necesarios para cubrir mas del 90% 
 - Cree el archivo constans.py y realize su respectivo codigo 
 - Cree el archivo renderer y empece a realizar las funciones 
+- Cree el archivo game_ui.py y comence  a realizar las funciones 
