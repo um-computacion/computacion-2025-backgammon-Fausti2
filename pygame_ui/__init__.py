@@ -7,4 +7,4 @@ try:
     __all__ = ['BackgammonUI']
 except ImportError:
     # Si pygame no está instalado, no exportamos nada
-    __all__ = []
+    __all__ = [] 

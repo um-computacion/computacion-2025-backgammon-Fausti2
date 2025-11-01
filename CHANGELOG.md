@@ -162,3 +162,8 @@ configuracion de circle ci
 ## 31-10-2025
 ### Agregado 
 - Cambie y mejore los archivos de pygame_ui y Actualmente ya esta funcionando Pygame. 
+
+
+## 01-11-2025
+### Agregado 
+- Cambie los archivos de pygame_ui realizando mejoras y agregue la barra del medio para las fichas comidas y la barra lateral para almacenar las fichas que sacamos para finalizar el juego. 

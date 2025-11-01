@@ -1,183 +1,217 @@
+# pyright: reportMissingImports=false, reportMissingModuleSource=false
 """
-Módulo de renderizado del tablero de Backgammon.
+Renderer simplificado:
+- Marco único
+- Canal central y bandeja lateral con el mismo estilo liso (sin recuadros)
+- Números uniformes, sin solaparse
+- Texto “Turno de …” centrado en el cuadrante izquierdo
 """
 
 try:
-    import pygame 
+    import pygame
 except ImportError:
     pygame = None
 
 from .constants import *
 
+# ---------------- util ----------------
+def _txt(surf, text, pos, color=TEXT_UNI, center=False, font=None):
+    font = font or pygame.font.SysFont(None, FONT_SIZE)
+    img = font.render(text, True, color)
+    r = img.get_rect()
+    if center: r.center = pos
+    else:      r.topleft = pos
+    surf.blit(img, r)
+
+def _tri(surf, rect, up, color):
+    x, y, w, h = rect
+    pts = [(x, y), (x + w, y), (x + w / 2, y + h)] if up else [(x, y + h), (x + w, y + h), (x + w / 2, y)]
+    pygame.draw.polygon(surf, color, pts)
+
+def _chip(surf, x, y, face, edge, r):
+    pygame.draw.circle(surf, edge, (x, y), r + 2)
+    pygame.draw.circle(surf, face, (x, y), r)
+
+def _pips(surf, rect, val):
+    cx, cy = rect.center; r = 4; dx = rect.w // 4; dy = rect.h // 4
+    table = {
+        1:[(cx,cy)],
+        2:[(cx-dx,cy-dy),(cx+dx,cy+dy)],
+        3:[(cx,cy),(cx-dx,cy-dy),(cx+dx,cy+dy)],
+        4:[(cx-dx,cy-dy),(cx+dx,cy-dy),(cx-dx,cy+dy),(cx+dx,cy+dy)],
+        5:[(cx,cy),(cx-dx,cy-dy),(cx+dx,cy-dy),(cx-dx,cy+dy),(cx+dx,cy+dy)],
+        6:[(cx-dx,cy-dy),(cx,cy-dy),(cx+dx,cy-dy),(cx-dx,cy+dy),(cx,cy+dy),(cx+dx,cy+dy)],
+    }
+    for p in table.get(val, []):
+        pygame.draw.circle(surf, (30,30,30), p, r)
 
 class BoardRenderer:
-    """Clase encargada de renderizar el tablero y las fichas."""
-    
     def __init__(self, screen, font):
         if pygame is None:
-            raise ImportError("Pygame no está instalado. Ejecuta: pip install pygame")
-        
-        self.screen = screen
-        self.font = font
+            raise ImportError("Pygame no está instalado. pip install pygame")
+        self.sc, self.font = screen, font
         self.hitmap = {}
-    
-    def _draw_triangle(self, rect, up=True, color=(200, 120, 40)):
-        """Dibuja un triángulo en la posición especificada."""
-        x, y, w, h = rect
-        if up:
-            pts = [(x, y), (x + w, y), (x + w / 2, y + h)]
-        else:
-            pts = [(x, y + h), (x + w, y + h), (x + w / 2, y)]
-        pygame.draw.polygon(self.screen, color, pts)
-    
-    def _draw_text(self, text, pos, color=TEXT, center=False):
-        """Dibuja texto en la posición especificada."""
-        img = self.font.render(text, True, color)
-        r = img.get_rect()
-        if center:
-            r.center = pos
-        else:
-            r.topleft = pos
-        self.screen.blit(img, r)
-    
-    def _count_at_point(self, board):
-        """
-        Devuelve, para cada punto 0..23, (color_owner, count).
-        """
-        data = []
-        for i in range(24):
-            owner = board.owner_at(i)
-            count = len(board.get_point(i))
-            if owner is None or count == 0:
-                data.append((None, 0))
-            else:
-                data.append((owner, count))
-        return data
-    
-    def render(self, game, last_msg=None, selected_from=None):
-        """
-        Dibuja el tablero completo y devuelve un hitmap con las áreas clickeables.
-        """
-        self.screen.fill(BG)
+
+    # ---------- pública ----------
+    def render(self, game, last_msg=None, selected_from=None, show_help=False, legal_moves=None):
+        legal_moves = legal_moves or []
         self.hitmap = {}
-        
-        # Fondo del tablero
-        board_rect = pygame.Rect(MARGIN, MARGIN, BOARD_W, BOARD_H)
-        pygame.draw.rect(self.screen, BOARD_BG, board_rect, border_radius=10)
-        
-        # Renderizar triángulos y crear hitmap
-        self._render_triangles(selected_from)
-        
-        # Renderizar etiquetas de puntos
-        self._render_labels()
-        
-        # Renderizar fichas
-        self._render_pieces(game.get_board())
-        
-        # Renderizar HUD
-        self._render_hud(game, last_msg)
-        
+        self._board_and_areas()
+        self._stacks_points(game)
+        self._bar(game)
+        self._tray(game)
+        self._hud(game, last_msg, show_help, legal_moves)
+        if selected_from is not None and selected_from in self.hitmap:
+            pygame.draw.rect(self.sc, HILIGHT, self.hitmap[selected_from], 2)
         return self.hitmap
-    
-    def _render_triangles(self, selected_from):
-        """Renderiza los triángulos del tablero y crea el hitmap."""
-        # Parte superior: 11..0 (visual 12..1)
-        for k, idx in enumerate(range(11, -1, -1)):
-            x = MARGIN + k * POINT_W
-            tri_rect = (x, MARGIN + 30, POINT_W, STACK_H)
-            color = TRIANGLE_A if k % 2 == 0 else TRIANGLE_B
-            self._draw_triangle(tri_rect, up=True, color=color)
-            
-            r = pygame.Rect(x, MARGIN, POINT_W, (BOARD_H // 2))
-            self.hitmap[idx] = r
-            
-            if selected_from == idx:
-                pygame.draw.rect(self.screen, HILIGHT, r, 2)
-        
-        # Parte inferior: 12..23 (visual 13..24)
-        for k, idx in enumerate(range(12, 24)):
-            x = MARGIN + k * POINT_W
-            y = MARGIN + BOARD_H - 30 - STACK_H
-            tri_rect = (x, y, POINT_W, STACK_H)
-            color = TRIANGLE_B if k % 2 == 0 else TRIANGLE_A
-            self._draw_triangle(tri_rect, up=False, color=color)
-            
-            r = pygame.Rect(x, MARGIN + BOARD_H // 2, POINT_W, (BOARD_H // 2))
-            self.hitmap[idx] = r
-            
-            if selected_from == idx:
-                pygame.draw.rect(self.screen, HILIGHT, r, 2)
-    
-    def _render_labels(self):
-        """Renderiza las etiquetas numéricas de los puntos."""
-        top_labels = [str(i) for i in range(12, 0, -1)]
-        for k, s in enumerate(top_labels):
-            cx = MARGIN + k * POINT_W + POINT_W // 2
-            self._draw_text(s, (cx, MARGIN + 8), center=True)
-        
-        bot_labels = [str(i) for i in range(13, 25)]
-        for k, s in enumerate(bot_labels):
-            cx = MARGIN + k * POINT_W + POINT_W // 2
-            self._draw_text(s, (cx, MARGIN + BOARD_H - 18), center=True)
-    
-    def _render_pieces(self, board):
-        """Renderiza las fichas en el tablero."""
-        counts = self._count_at_point(board)
-        
-        # Parte superior: 11..0
-        for layer in range(5):
-            for k, idx in enumerate(range(11, -1, -1)):
-                owner, count = counts[idx]
-                if count <= layer or owner is None:
-                    continue
-                
-                cx = MARGIN + k * POINT_W + POINT_W // 2
-                y0 = MARGIN + 30 + layer * LAYER_H + LAYER_H // 2
-                rad = LAYER_H // 2 - 2
-                col = WHITE if owner == "blanco" else BLACK
-                
-                pygame.draw.circle(self.screen, col, (cx, y0), max(6, rad))
-                
-                if layer == 4 and count > 5:
-                    self._draw_text(str(count - 4), (cx, y0),
-                                  center=True, color=HILIGHT)
-        
-        # Parte inferior: 12..23
-        for layer in range(5):
-            for k, idx in enumerate(range(12, 24)):
-                owner, count = counts[idx]
-                if count <= layer or owner is None:
-                    continue
-                
-                cx = MARGIN + k * POINT_W + POINT_W // 2
-                y_base = MARGIN + BOARD_H - 30
-                y0 = y_base - layer * LAYER_H - LAYER_H // 2
-                rad = LAYER_H // 2 - 2
-                col = WHITE if owner == "blanco" else BLACK
-                
-                pygame.draw.circle(self.screen, col, (cx, y0), max(6, rad))
-                
-                if layer == 4 and count > 5:
-                    self._draw_text(str(count - 4), (cx, y0),
-                                  center=True, color=HILIGHT)
-    
-    def _render_hud(self, game, last_msg):
-        """Renderiza el HUD con información del juego."""
-        turno = game.get_current_player().get_color().capitalize()
-        dados = game.get_rolled_values()
-        
-        self._draw_text(
-            f"Turno: {turno}   Dados: {dados if dados else '-'}",
-            (MARGIN + 6, HEIGHT - 28),
-            color=TEXT
-        )
-        
-        if last_msg:
-            self._draw_text(last_msg, (MARGIN + 280, HEIGHT - 28), color=ERROR)
-    
+
     def hit_test(self, pos):
-        """Detecta qué punto del tablero fue clickeado."""
-        for idx, rect in self.hitmap.items():
-            if rect.collidepoint(pos):
-                return idx
-        return None 
+        for i, r in self.hitmap.items():
+            if r.collidepoint(pos):
+                return i
+        return None
+
+    # ---------- tablero + hitmap + labels ----------
+    def _board_and_areas(self):
+        # marco único + fondo tablero
+        frame = pygame.Rect(MARGIN, MARGIN, BOARD_W, BOARD_H)
+        pygame.draw.rect(self.sc, FRAME_COLOR, frame, border_radius=14)
+        inner = frame.inflate(-16, -16)
+        pygame.draw.rect(self.sc, BOARD_BG, inner, border_radius=10)
+
+        # canal y bandeja: mismo estilo liso
+        canal = pygame.Rect(MARGIN + 6 * POINT_W, MARGIN, BAR_W, BOARD_H)
+        pygame.draw.rect(self.sc, CHANNEL_BG, canal, border_radius=6)
+        pygame.draw.rect(self.sc, CHANNEL_EDGE, canal, 1, border_radius=6)  # borde fino
+        self.hitmap[IDX_FROM_BAR] = canal
+
+        tray_x = MARGIN + BOARD_W - TRAY_W
+        self.tray = pygame.Rect(tray_x, MARGIN, TRAY_W, BOARD_H)
+        pygame.draw.rect(self.sc, CHANNEL_BG, self.tray, border_radius=6)
+        pygame.draw.rect(self.sc, CHANNEL_EDGE, self.tray, 1, border_radius=6)
+
+        # triángulos + zonas clicables + labels (color de texto único)
+        # top 11..0
+        for k, idx in enumerate(range(11, -1, -1)):
+            x = x_col(k)
+            _tri(self.sc, (x, MARGIN + 28, POINT_W, STACK_H), True, TRI_A if k % 2 == 0 else TRI_B)
+            self.hitmap[idx] = pygame.Rect(x, MARGIN, POINT_W, BOARD_H // 2)
+            _txt(self.sc, str(12 - k), (x + POINT_W // 2, MARGIN + 6), TEXT_UNI, True)
+        # bottom 12..23
+        for k, idx in enumerate(range(12, 24)):
+            x = x_col(k)
+            y = MARGIN + BOARD_H - 28 - STACK_H
+            _tri(self.sc, (x, y, POINT_W, STACK_H), False, TRI_B if k % 2 == 0 else TRI_A)
+            self.hitmap[idx] = pygame.Rect(x, MARGIN + BOARD_H // 2, POINT_W, BOARD_H // 2)
+            _txt(self.sc, str(13 + k), (x + POINT_W // 2, MARGIN + BOARD_H - 22), TEXT_UNI, True)
+
+    # ---------- fichas en puntos ----------
+    def _stacks_points(self, game):
+        board = game.get_board()
+        rad = LAYER_H // 2
+
+        def draw_range(indices, top=True):
+            for layer in range(5):
+                for k, idx in enumerate(indices):
+                    owner = board.owner_at(idx)
+                    if not owner: continue
+                    cnt = len(board.get_point(idx))
+                    if cnt <= layer: continue
+                    cx = x_col(k) + POINT_W // 2
+                    y  = (MARGIN + 28 + layer * LAYER_H + rad) if top else (MARGIN + BOARD_H - 28 - layer * LAYER_H - rad)
+                    face, edge = (WHITE, WHITE_EDGE) if owner == "blanco" else (BLACK, BLACK_EDGE)
+                    _chip(self.sc, cx, y, face, edge, rad)
+                    if layer == 4 and cnt > 5:
+                        _txt(self.sc, str(cnt - 4), (cx, y), TEXT_UNI, True)
+
+        draw_range(range(11, -1, -1), top=True)
+        draw_range(range(12, 24), top=False)
+
+    # ---------- barra central (comidas) ----------
+    def _bar(self, game):
+        bar = game.get_board().get_bar()
+        cnt_b, cnt_w = len(bar["negro"]), len(bar["blanco"])
+        canal = pygame.Rect(MARGIN + 6 * POINT_W, MARGIN, BAR_W, BOARD_H)
+        rad = LAYER_H // 2
+
+        for i in range(min(cnt_b, 5)):
+            _chip(self.sc, canal.centerx, MARGIN + 30 + i * (LAYER_H - 2), BLACK, BLACK_EDGE, rad)
+        if cnt_b > 5:
+            _txt(self.sc, str(cnt_b - 5), (canal.centerx, MARGIN + 30 + 5 * (LAYER_H - 2)), TEXT_UNI, True)
+
+        for i in range(min(cnt_w, 5)):
+            _chip(self.sc, canal.centerx, MARGIN + BOARD_H - 30 - i * (LAYER_H - 2), WHITE, WHITE_EDGE, rad)
+        if cnt_w > 5:
+            _txt(self.sc, str(cnt_w - 5), (canal.centerx, MARGIN + BOARD_H - 30 - 5 * (LAYER_H - 2)), TEXT_UNI, True)
+
+    # ---------- bandeja lateral (solo n° de bear-off) ----------
+    def _tray(self, game):
+        board = game.get_board()
+
+        def count_on_board(color):
+            return sum(len(board.get_point(i)) for i in range(24) if board.owner_at(i) == color)
+
+        cnt_w_bar, cnt_b_bar = len(board.get_bar()["blanco"]), len(board.get_bar()["negro"])
+        off_w = max(0, CHECKERS_PER_COLOR - (count_on_board("blanco") + cnt_w_bar))
+        off_b = max(0, CHECKERS_PER_COLOR - (count_on_board("negro") + cnt_b_bar))
+
+        # Solo números (sin recuadros)
+        mid = self.tray.centery
+        top_pos = (self.tray.centerx, self.tray.y + self.tray.h * 0.25)
+        bot_pos = (self.tray.centerx, self.tray.y + self.tray.h * 0.75)
+        bigf = pygame.font.SysFont(None, FONT_SIZE + 10)
+        _txt(self.sc, str(off_b), top_pos, TEXT_UNI, True, bigf)
+        _txt(self.sc, str(off_w), bot_pos, TEXT_UNI, True, bigf)
+
+    # ---------- HUD (turno + dados + ayudas/errores) ----------
+    def _hud(self, game, last_msg, show_help, legal_moves):
+        # “Turno de …” centrado en el cuadrante izquierdo (como tu segunda imagen)
+        p = game.get_current_player()
+        nombre = p.get_name() if hasattr(p, "get_name") else p.get_color().capitalize()
+        titlef = pygame.font.SysFont(None, FONT_SIZE + 10)
+        left_center = (MARGIN + (BOARD_W - TRAY_W - BAR_W) // 4, MARGIN + BOARD_H // 2)
+        _txt(self.sc, f"Turno de {nombre}", left_center, TEXT_UNI, True, titlef)
+
+        # Dados: en el canal central, debajo de los números, sin taparlos
+        vals = game.get_rolled_values()
+        if vals:
+            canal = pygame.Rect(MARGIN + 6 * POINT_W, MARGIN, BAR_W, BOARD_H)
+            w = h = DICE_SIZE; gap = 10
+            y0 = MARGIN + 44  # suficientemente abajo para no tocar los números
+            total = w * 2 + gap
+            x0 = canal.centerx - total // 2
+            boxes = [pygame.Rect(x0, y0, w, h), pygame.Rect(x0 + w + gap, y0, w, h)]
+            for i, rc in enumerate(boxes):
+                pygame.draw.rect(self.sc, (250, 250, 250), rc, border_radius=6)
+                pygame.draw.rect(self.sc, (60, 60, 60), rc, 2, border_radius=6)
+                if i < len(vals): _pips(self.sc, rc, vals[i])
+
+        # Destinos legales
+        dests = {d for _, d, _ in legal_moves}
+        for idx, rc in self.hitmap.items():
+            if idx in dests:
+                pygame.draw.rect(self.sc, HILIGHT, rc, 2)
+
+        # Ayuda (opcional)
+        if show_help:
+            panel = pygame.Surface((520, 110), pygame.SRCALPHA)
+            panel.fill((0, 0, 0, 140))
+            lines = [
+                "Controles:",
+                "T: tirar   R: reiniciar   H: ayuda   J: jugadas",
+                "Click: origen → destino. Con fichas en barra, podés clickear directo el destino.",
+                "ESC/Q/V: volver al menú",
+            ]
+            y = 10
+            for i, t in enumerate(lines):
+                f = pygame.font.SysFont(None, FONT_SIZE + (6 if i == 0 else 0))
+                panel.blit(f.render(t, True, (240, 240, 240)), (12, y))
+                y += f.get_height() + 2
+            self.sc.blit(panel, (MARGIN + 10, MARGIN + BOARD_H - 110 - 10))
+
+        # Errores
+        if last_msg:
+            band = pygame.Surface((BOARD_W, 28), pygame.SRCALPHA)
+            band.fill((*ERROR, 180))
+            band.blit(self.font.render(str(last_msg), True, (255, 255, 255)), (10, 5))
+            self.sc.blit(band, (MARGIN, MARGIN + BOARD_H - 30))

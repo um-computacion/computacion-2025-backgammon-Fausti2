@@ -1,144 +1,121 @@
+# pyright: reportMissingImports=false, reportMissingModuleSource=false
 """
-Interfaz principal de usuario con Pygame para Backgammon.
+UI principal Pygame (corta y SOLID):
+- Recibe opcionalmente un `game` (inyección). Si no, crea uno por defecto.
+- Eventos mínimos: T/R/H/J + click origen→destino (y desde barra directo).
+- Delegación de dibujo al BoardRenderer.
 """
 
 import sys
-
 try:
-    import pygame 
+    import pygame
 except ImportError:
-    print("\n" + "="*50)
-    print("ERROR: Pygame no está instalado")
-    print("="*50)
-    print("Para instalar pygame, ejecuta en la terminal:")
-    print("  pip install pygame")
-    print("o")
-    print("  pip3 install pygame")
-    print("="*50 + "\n")
-    sys.exit(1)
+    print("ERROR: Pygame no está instalado. Ejecuta: pip install pygame"); sys.exit(1)
 
 from .constants import *
 from .renderer import BoardRenderer
 
-
 class BackgammonUI:
-    """Clase principal que maneja la interfaz gráfica del juego."""
-    
-    def __init__(self):
-        """Inicializa la interfaz gráfica y crea el juego."""
-        from core.board import Board
-        from core.player import Player
-        from core.dice import Dice
-        from core.game import BackgammonGame
-        
+    def __init__(self, game=None):
         pygame.init()
         pygame.display.set_caption("Backgammon (Pygame)")
-        
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        self.clock = pygame.time.Clock()
-        self.font = pygame.font.SysFont(None, FONT_SIZE)
-        
-        # Crear el juego internamente
-        board = Board()
-        board.setup_standard()
-        white = Player("Blanco", "blanco")
-        black = Player("Negro", "negro")
-        dice = Dice()
-        self.game = BackgammonGame(board, white, black, dice)
-        
+        self.clock  = pygame.time.Clock()
+        self.font   = pygame.font.SysFont(None, FONT_SIZE)
+
+        # DI opcional: si no me dan un game, lo creo (compatibilidad con tu repo)
+        if game is None:
+            from core.board import Board
+            from core.player import Player
+            from core.dice import Dice
+            from core.game import BackgammonGame
+            b = Board(); b.setup_standard()
+            w = Player("Blanco", "blanco"); n = Player("Negro", "negro")
+            from core.dice import Dice
+            game = BackgammonGame(b, w, n, Dice())
+        self.game = game
+
         self.renderer = BoardRenderer(self.screen, self.font)
-        
+
+        # estado UI
         self.last_msg = None
         self.selected_from = None
+        self.show_help = False
+        self.show_moves = False
+        self.legal_moves_cache = []
         self.running = True
-    
-    def handle_events(self):
-        """Procesa todos los eventos de Pygame."""
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
-            
-            elif event.type == pygame.KEYDOWN:
-                self._handle_keydown(event)
-            
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                self._handle_click(event)
-    
-    def _handle_keydown(self, event):
-        """Maneja los eventos de teclado."""
-        if event.key in (pygame.K_ESCAPE, pygame.K_q):
+
+    # ------------------- eventos
+    def _on_key(self, e):
+        if e.key in (pygame.K_ESCAPE, pygame.K_q, pygame.K_v):
             self.running = False
-        
-        elif event.key == pygame.K_r:
-            self._restart_game()
-        
-        elif event.key == pygame.K_t:
-            self._roll_dice()
-        
-        elif event.key == pygame.K_j:
-            self._show_legal_moves()
-    
-    def _handle_click(self, event):
-        """Maneja los clicks del mouse en el tablero."""
-        idx = self.renderer.hit_test(event.pos)
-        
-        if idx is not None:
-            if self.selected_from is None:
-                self.selected_from = idx
-                self.last_msg = None
-            else:
-                self._try_move(self.selected_from, idx)
-                self.selected_from = None
-    
-    def _restart_game(self):
-        """Reinicia el juego a su estado inicial."""
+        elif e.key == pygame.K_r:
+            self._restart()
+        elif e.key == pygame.K_t:
+            self._roll()
+        elif e.key == pygame.K_j:
+            self.show_moves = not self.show_moves
+            if self.show_moves:
+                self.legal_moves_cache = list(self.game.legal_moves())
+        elif e.key == pygame.K_h:
+            self.show_help = not self.show_help
+
+    def _on_click(self, pos):
+        idx = self.renderer.hit_test(pos)
+        if idx is None:
+            return
+        color = self.game.get_current_player().get_color()
+        tiene_barra = len(self.game.get_board().get_bar()[color]) > 0
+
+        if self.selected_from is None:
+            # Si hay fichas en barra, permito click directo en destino
+            if tiene_barra and idx != IDX_FROM_BAR:
+                self._move(IDX_FROM_BAR, idx); return
+            self.selected_from = idx; self.last_msg = None
+        else:
+            self._move(self.selected_from, idx); self.selected_from = None
+
+    # ------------------- acciones
+    def _restart(self):
         from core.board import Board
         from core.player import Player
         from core.dice import Dice
         from core.game import BackgammonGame
-        
-        board = Board()
-        board.setup_standard()
-        white = Player("Blanco", "blanco")
-        black = Player("Negro", "negro")
-        dice = Dice()
-        
-        self.game = BackgammonGame(board, white, black, dice)
-        self.last_msg = None
-        self.selected_from = None
-    
-    def _roll_dice(self):
-        """Tira los dados."""
+        b = Board(); b.setup_standard()
+        self.game = BackgammonGame(b, Player("Blanco","blanco"), Player("Negro","negro"), Dice())
+        self.last_msg=None; self.selected_from=None; self.show_moves=False; self.legal_moves_cache=[]
+
+    def _roll(self):
         try:
-            self.game.roll_dice()
-            self.last_msg = None
+            self.game.roll_dice(); self.last_msg=None
+            color = self.game.get_current_player().get_color()
+            if len(self.game.get_board().get_bar()[color]) > 0:
+                self.legal_moves_cache = list(self.game.legal_moves()); self.show_moves=True
         except Exception as ex:
             self.last_msg = str(ex)
-    
-    def _show_legal_moves(self):
-        """Muestra las jugadas legales en consola."""
-        print("Jugadas legales:", self.game.legal_moves())
-    
-    def _try_move(self, origen, destino):
-        """Intenta realizar un movimiento."""
+
+    def _move(self, start, end):
+        if start == IDX_FROM_BAR:
+            start = -1
         color = self.game.get_current_player().get_color()
         try:
-            self.game.move(origen, destino, color)
-            self.last_msg = None
+            self.game.move(start, end, color); self.last_msg=None
+            if not self.game.get_rolled_values():
+                self.show_moves=False
         except Exception as ex:
             self.last_msg = str(ex)
-    
-    def render(self):
-        """Renderiza el frame actual."""
-        self.renderer.render(self.game, self.last_msg, self.selected_from)
-        pygame.display.flip()
-    
+
+    # ------------------- bucle/render
     def run(self):
-        """Loop principal del juego."""
         while self.running:
-            self.handle_events()
-            self.render()
+            for e in pygame.event.get():
+                if e.type == pygame.QUIT: self.running = False
+                elif e.type == pygame.KEYDOWN: self._on_key(e)
+                elif e.type == pygame.MOUSEBUTTONDOWN and e.button == 1: self._on_click(e.pos)
+
+            legal = self.legal_moves_cache if self.show_moves else []
+            self.renderer.render(self.game, self.last_msg, self.selected_from, self.show_help, legal)
+            pygame.display.flip()
             self.clock.tick(FPS)
-        
         pygame.quit()
-        sys.exit() 
+        sys.exit()
