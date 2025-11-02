@@ -1,4 +1,3 @@
-# pyright: reportMissingImports=false, reportMissingModuleSource=false
 """
 UI principal Pygame (corta y SOLID):
 - Recibe opcionalmente un `game` (inyección). Si no, crea uno por defecto.
@@ -8,7 +7,7 @@ UI principal Pygame (corta y SOLID):
 
 import sys
 try:
-    import pygame
+    import pygame # type: ignore 
 except ImportError:
     print("ERROR: Pygame no está instalado. Ejecuta: pip install pygame"); sys.exit(1)
 

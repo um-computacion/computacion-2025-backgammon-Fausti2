@@ -1,4 +1,3 @@
-# pyright: reportMissingImports=false, reportMissingModuleSource=false
 """
 Constantes de la UI (versión simple):
 - Marco exterior color único

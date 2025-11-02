@@ -1,4 +1,3 @@
-# pyright: reportMissingImports=false, reportMissingModuleSource=false
 """
 Renderer simplificado:
 - Marco único
@@ -8,7 +7,7 @@ Renderer simplificado:
 """
 
 try:
-    import pygame
+    import pygame # type: ignore
 except ImportError:
     pygame = None
 
