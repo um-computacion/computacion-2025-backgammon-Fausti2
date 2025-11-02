@@ -167,3 +167,4 @@ configuracion de circle ci
 ## 01-11-2025
 ### Agregado 
 - Cambie los archivos de pygame_ui realizando mejoras y agregue la barra del medio para las fichas comidas y la barra lateral para almacenar las fichas que sacamos para finalizar el juego. 
+- Realice la documentacion pedida 
