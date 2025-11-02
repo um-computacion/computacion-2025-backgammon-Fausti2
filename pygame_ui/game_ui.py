@@ -9,7 +9,7 @@ import sys
 try:
     import pygame # type: ignore 
 except ImportError:
-    print("ERROR: Pygame no está instalado. Ejecuta: pip install pygame"); sys.exit(1)
+        print("ERROR: Pygame no está instalado. Ejecuta: pip install pygame"); sys.exit(1)
 
 from .constants import *
 from .renderer import BoardRenderer
@@ -30,7 +30,6 @@ class BackgammonUI:
             from core.game import BackgammonGame
             b = Board(); b.setup_standard()
             w = Player("Blanco", "blanco"); n = Player("Negro", "negro")
-            from core.dice import Dice
             game = BackgammonGame(b, w, n, Dice())
         self.game = game
 
@@ -58,6 +57,16 @@ class BackgammonUI:
                 self.legal_moves_cache = list(self.game.legal_moves())
         elif e.key == pygame.K_h:
             self.show_help = not self.show_help
+        elif e.key == pygame.K_e:  # <<< NUEVO: pasar turno manual si no hay jugadas
+            if not self.game.get_rolled_values():
+                self.last_msg = "Primero tirá los dados con T."
+            elif not self.game.can_play():
+                self.game.end_turn()
+                self.show_moves = False
+                self.legal_moves_cache = []
+                self.last_msg = "Sin jugadas legales: turno pasado."
+            else:
+                self.last_msg = "Aún tenés jugadas disponibles con estos dados."
 
     def _on_click(self, pos):
         idx = self.renderer.hit_test(pos)
@@ -87,9 +96,16 @@ class BackgammonUI:
     def _roll(self):
         try:
             self.game.roll_dice(); self.last_msg=None
+            # mostrar jugadas si hay ficha en barra
             color = self.game.get_current_player().get_color()
             if len(self.game.get_board().get_bar()[color]) > 0:
                 self.legal_moves_cache = list(self.game.legal_moves()); self.show_moves=True
+            # <<< NUEVO: autopasar si no hay jugadas legales con estos dados
+            if not self.game.can_play():
+                self.game.end_turn()
+                self.show_moves = False
+                self.legal_moves_cache = []
+                self.last_msg = "No hay jugadas con estos dados: turno pasado."
         except Exception as ex:
             self.last_msg = str(ex)
 

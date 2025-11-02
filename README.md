@@ -25,7 +25,7 @@ El proyecto aplica una arquitectura por capas y principios de diseño SOLID, pro
 - requirements.txt 
 
 ### Requisitos Previos
-- Python 3.12+ (recomendado 3.13)
+- Python 3.12+ 
 - pip actualizado
 
 Instalación
@@ -46,11 +46,12 @@ source .venv/bin/activate
 python -m pip install -U pip setuptools wheel
 python -m pip install -r requirements.txt
 
-## Cómo Ejecutar
+# Cómo Ejecutar
 
-### Opción A — Interfaz Gráfica (Pygame)
-python main.py
-Controles Principales
+## Opción A — Interfaz Gráfica (Pygame)
+`python main.py`
+
+### Controles Principales
 T → Tirar los dados
 Click → Seleccionar y mover ficha (origen → destino)
 Si hay fichas en barra, clickeá directamente el destino válido
@@ -61,13 +62,14 @@ ESC / Q / V → Salir o volver
 
 ### Elementos en Pantalla
 Turno visible en el cuadrante izquierdo.
-Dados en el canal central (no tapan los números).
+Dados en el canal central .
 Barra central con fichas comidas (según color).
 Bandeja lateral mostrando solo el número de fichas en bear-off.
 
-### Opción B — Interfaz de Texto (CLI)
-python -m cli.cli
-Comandos disponibles
+## Opción B — Interfaz de Texto (CLI)
+`python -m cli.cli`
+
+### Comandos disponibles
 tirar	Lanza los dados
 mover <origen> <destino>	Mueve una ficha según los dados
 jugadas	Muestra jugadas legales disponibles
@@ -97,14 +99,8 @@ Ser el primer jugador en retirar las 15 fichas del tablero (bear-off).
 - Barra: columna central para fichas comidas.
 - Bandeja lateral: muestra cuántas fichas sacaste. 
 
-## Pruebas
-pytest -q
- o con cobertura:
-pytest --cov=core --cov-report=term-missing
+## Tests 
+### Ejecutar tests 
+bash
+`pytest`
 
-
-## Diseño y Principios Aplicados
-- Separación de capas: core (lógica) y ui (interfaz).
-- SRP (Responsabilidad Única): cada clase cumple una sola función.
-- OCP (Abierto/Cerrado): el motor puede extenderse (por ejemplo, interfaz web) sin modificar su base.
-- Tests unitarios: aseguran comportamiento correcto de cada componente.

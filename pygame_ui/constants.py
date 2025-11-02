@@ -23,25 +23,25 @@ LAYER_H = max(14, STACK_H // 5)
 DICE_SIZE = 46
 
 # Paleta simple
-FRAME_COLOR   = (96, 72, 48)     # marco exterior (único color)
-BOARD_BG      = (224, 203, 170)  # base del tablero
-TRI_A         = (165, 40, 35)    # rojo
-TRI_B         = (118, 138, 78)   # verde
+BOARD_BG     = (224, 203, 170)   # color de fondo del tablero
+FRAME_COLOR  = BOARD_BG          # mismo color para unificar el “fondo”
+TRI_A        = (165, 40, 35)     # rojo
+TRI_B        = (118, 138, 78)    # verde
 
 # Canal (barra) y bandeja: mismo estilo
-CHANNEL_BG    = (210, 196, 170)  # rectángulo liso
-CHANNEL_EDGE  = (120, 105, 85)   # borde fino (opcional)
+CHANNEL_BG   = (210, 196, 170)   # rectángulo liso
+CHANNEL_EDGE = (120, 105, 85)    # borde fino (opcional)
 
 # Fichas
-WHITE       = (245, 245, 245)
-WHITE_EDGE  = (220, 220, 220)
-BLACK       = (35, 35, 35)
-BLACK_EDGE  = (15, 15, 15)
+WHITE      = (245, 245, 245)
+WHITE_EDGE = (220, 220, 220)
+BLACK      = (35, 35, 35)
+BLACK_EDGE = (15, 15, 15)
 
 # Textos (uniforme)
-TEXT_UNI    = (35, 35, 35)
-HILIGHT     = (80, 160, 255)
-ERROR       = (170, 40, 40)
+TEXT_UNI = (35, 35, 35)
+HILIGHT  = (80, 160, 255)
+ERROR    = (170, 40, 40)
 
 # Varias
 FPS = 60
@@ -58,4 +58,4 @@ def x_col(k: int) -> int:
     base = MARGIN + k * POINT_W
     if k >= 6:
         base += BAR_W
-    return base
+    return base 
