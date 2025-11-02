@@ -154,3 +154,18 @@ configuracion de circle ci
 ### Agregado 
 - Realice el codigo de test_cli y mejore core/game 
 - Mejore y amplie todos los test necesarios para cubrir mas del 90% 
+- Cree el archivo constans.py y realize su respectivo codigo 
+- Cree el archivo renderer y empece a realizar las funciones 
+- Cree el archivo game_ui.py y comence  a realizar las funciones 
+- Integre en main la interfaz grafica 
+
+## 31-10-2025
+### Agregado 
+- Cambie y mejore los archivos de pygame_ui y Actualmente ya esta funcionando Pygame. 
+
+
+## 01-11-2025
+### Agregado 
+- Cambie los archivos de pygame_ui realizando mejoras y agregue la barra del medio para las fichas comidas y la barra lateral para almacenar las fichas que sacamos para finalizar el juego. 
+- Realice la documentacion pedida 
+- Finalize el proyecto 
