@@ -1,15 +1,8 @@
-"""
-UI principal Pygame (corta y SOLID):
-- Recibe opcionalmente un `game` (inyección). Si no, crea uno por defecto.
-- Eventos mínimos: T/R/H/J + click origen→destino (y desde barra directo).
-- Delegación de dibujo al BoardRenderer.
-"""
-
 import sys
 try:
-    import pygame # type: ignore 
+    import pygame  # type: ignore
 except ImportError:
-        print("ERROR: Pygame no está instalado. Ejecuta: pip install pygame"); sys.exit(1)
+    print("ERROR: Pygame no está instalado. Ejecuta: pip install pygame"); sys.exit(1)
 
 from .constants import *
 from .renderer import BoardRenderer
@@ -22,7 +15,7 @@ class BackgammonUI:
         self.clock  = pygame.time.Clock()
         self.font   = pygame.font.SysFont(None, FONT_SIZE)
 
-        # DI opcional: si no me dan un game, lo creo (compatibilidad con tu repo)
+        # DI opcional
         if game is None:
             from core.board import Board
             from core.player import Player
@@ -57,7 +50,7 @@ class BackgammonUI:
                 self.legal_moves_cache = list(self.game.legal_moves())
         elif e.key == pygame.K_h:
             self.show_help = not self.show_help
-        elif e.key == pygame.K_e:  # <<< NUEVO: pasar turno manual si no hay jugadas
+        elif e.key == pygame.K_e:  # pasar turno manual si no hay jugadas
             if not self.game.get_rolled_values():
                 self.last_msg = "Primero tirá los dados con T."
             elif not self.game.can_play():
@@ -96,11 +89,9 @@ class BackgammonUI:
     def _roll(self):
         try:
             self.game.roll_dice(); self.last_msg=None
-            # mostrar jugadas si hay ficha en barra
             color = self.game.get_current_player().get_color()
             if len(self.game.get_board().get_bar()[color]) > 0:
                 self.legal_moves_cache = list(self.game.legal_moves()); self.show_moves=True
-            # <<< NUEVO: autopasar si no hay jugadas legales con estos dados
             if not self.game.can_play():
                 self.game.end_turn()
                 self.show_moves = False
@@ -110,15 +101,43 @@ class BackgammonUI:
             self.last_msg = str(ex)
 
     def _move(self, start, end):
+        # mapear índices especiales de UI
         if start == IDX_FROM_BAR:
             start = -1
-        color = self.game.get_current_player().get_color()
+
+        # >>> NUEVO: bandeja como destino de bear-off para ambos colores
+        if end == IDX_BEAR_OFF:
+            end = 24 if self.game.get_current_player().get_color() == "blanco" else -1
+
+        # guardo el color que está moviendo ANTES del move (por si cambia el turno adentro)
+        color_que_movio = self.game.get_current_player().get_color()
+
         try:
-            self.game.move(start, end, color); self.last_msg=None
+            self.game.move(start, end, color_que_movio)
+            self.last_msg = None
             if not self.game.get_rolled_values():
-                self.show_moves=False
+                self.show_moves = False
+
+            # mensaje de conteo cuando se saca una ficha
+            if end in (24, -1):
+                off = self._borne_off_count(color_que_movio)
+                self.last_msg = f"{color_que_movio.capitalize()} sacó una ficha ({off}/{CHECKERS_PER_COLOR})."
+
+            # anuncio de ganador inmediato si corresponde
+            ganador = self.game.get_winner() or (self.game.has_won(color_que_movio) and color_que_movio) or None
+            if ganador:
+                nombre = "Blanco" if ganador == "blanco" else "Negro"
+                self.last_msg = f"¡Ganó {nombre}!"
+                # self.running = False  # opcional: cerrar al ganar
+
         except Exception as ex:
             self.last_msg = str(ex)
+
+    def _borne_off_count(self, color: str) -> int:
+        board = self.game.get_board()
+        on_board = sum(len(board.get_point(i)) for i in range(24) if board.owner_at(i) == color)
+        on_bar   = len(board.get_bar()[color])
+        return max(0, CHECKERS_PER_COLOR - (on_board + on_bar))
 
     # ------------------- bucle/render
     def run(self):
@@ -129,6 +148,12 @@ class BackgammonUI:
                 elif e.type == pygame.MOUSEBUTTONDOWN and e.button == 1: self._on_click(e.pos)
 
             legal = self.legal_moves_cache if self.show_moves else []
+
+            # >>> NUEVO: mostrar ganador aunque ya haya terminado (cada frame)
+            winner = self.game.get_winner()
+            if winner and (not self.last_msg or "¡Ganó" not in str(self.last_msg)):
+                self.last_msg = f"¡Ganó {'Blanco' if winner=='blanco' else 'Negro'}!"
+
             self.renderer.render(self.game, self.last_msg, self.selected_from, self.show_help, legal)
             pygame.display.flip()
             self.clock.tick(FPS)

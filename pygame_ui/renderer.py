@@ -3,7 +3,16 @@ try:
 except ImportError:
     pygame = None
 
-from .constants import *
+from .constants import (
+    MARGIN, BOARD_W, BOARD_H, POINT_W, BAR_W, TRAY_W,
+    STACK_H, LAYER_H, FONT_SIZE, DICE_SIZE,
+    BOARD_BG, FRAME_COLOR, TRI_A, TRI_B,
+    CHANNEL_BG, CHANNEL_EDGE,
+    WHITE, WHITE_EDGE, BLACK, BLACK_EDGE,
+    TEXT_UNI, HILIGHT, ERROR,
+    IDX_FROM_BAR, IDX_BEAR_OFF, CHECKERS_PER_COLOR,
+    x_col,
+)
 
 # ---------------- util ----------------
 def _txt(surf, text, pos, color=TEXT_UNI, center=False, font=None):
@@ -54,6 +63,7 @@ class BoardRenderer:
             raise ImportError("Pygame no está instalado. pip install pygame")
         self.sc, self.font = screen, font
         self.hitmap = {}
+        self.tray = None
 
     # ---------- pública ----------
     def render(self, game, last_msg=None, selected_from=None, show_help=False, legal_moves=None):
@@ -76,24 +86,26 @@ class BoardRenderer:
 
     # ---------- tablero + hitmap + labels ----------
     def _board_and_areas(self):
-        # marco + fondo interno (colores unificados)
+        # marco + fondo interno
         frame = pygame.Rect(MARGIN, MARGIN, BOARD_W, BOARD_H)
         pygame.draw.rect(self.sc, FRAME_COLOR, frame, border_radius=14)
         inner = frame.inflate(-16, -16)
-        pygame.draw.rect(self.sc, BOARD_BG, inner, border_radius=10)  # << fijate: agregamos color
+        pygame.draw.rect(self.sc, BOARD_BG, inner, border_radius=10)
 
-        # canal y bandeja: mismo estilo liso
+        # canal (barra central)
         canal = pygame.Rect(MARGIN + 6 * POINT_W, MARGIN, BAR_W, BOARD_H)
         pygame.draw.rect(self.sc, CHANNEL_BG, canal, border_radius=6)
         pygame.draw.rect(self.sc, CHANNEL_EDGE, canal, 1, border_radius=6)  # borde fino
         self.hitmap[IDX_FROM_BAR] = canal
 
+        # bandeja lateral (bear-off)
         tray_x = MARGIN + BOARD_W - TRAY_W
         self.tray = pygame.Rect(tray_x, MARGIN, TRAY_W, BOARD_H)
         pygame.draw.rect(self.sc, CHANNEL_BG, self.tray, border_radius=6)
         pygame.draw.rect(self.sc, CHANNEL_EDGE, self.tray, 1, border_radius=6)
+        self.hitmap[IDX_BEAR_OFF] = self.tray  # clickeable para bear-off
 
-        # triángulos + zonas clicables + labels (color de texto único)
+        # triángulos + zonas clickeables + labels
         # top 11..0
         for k, idx in enumerate(range(11, -1, -1)):
             x = x_col(k)
@@ -130,8 +142,10 @@ class BoardRenderer:
                     )
                     face, edge = (WHITE, WHITE_EDGE) if owner == "blanco" else (BLACK, BLACK_EDGE)
                     _chip(self.sc, cx, y, face, edge, rad)
+                    # ---- contador en negras ----
                     if layer == 4 and cnt > 5:
-                        _txt(self.sc, str(cnt - 4), (cx, y), TEXT_UNI, True)
+                        num_color = TEXT_UNI if owner == "blanco" else (240, 240, 240)  # NUEVO
+                        _txt(self.sc, str(cnt - 4), (cx, y), num_color, True)
 
         draw_range(range(11, -1, -1), top=True)
         draw_range(range(12, 24), top=False)
@@ -180,7 +194,7 @@ class BoardRenderer:
         left_center = (MARGIN + (BOARD_W - TRAY_W - BAR_W) // 4, MARGIN + BOARD_H // 2)
         _txt(self.sc, f"Turno de {nombre}", left_center, TEXT_UNI, True, titlef)
 
-        # Dados en el canal central
+        # Dados visibles si hay tirada
         vals = game.get_rolled_values()
         if vals:
             canal = pygame.Rect(MARGIN + 6 * POINT_W, MARGIN, BAR_W, BOARD_H)
@@ -196,11 +210,13 @@ class BoardRenderer:
                 if i < len(vals):
                     _pips(self.sc, rc, vals[i])
 
-        # Destinos legales
-        dests = {d for _, d, _ in legal_moves}
+        # Destinos legales resaltados
+        dests = {d for _, d, _ in (legal_moves or [])}
         for idx, rc in self.hitmap.items():
             if idx in dests:
                 pygame.draw.rect(self.sc, HILIGHT, rc, 2)
+        if 24 in dests and IDX_BEAR_OFF in self.hitmap:
+            pygame.draw.rect(self.sc, HILIGHT, self.hitmap[IDX_BEAR_OFF], 2)
 
         # Ayuda (opcional)
         if show_help:
@@ -209,7 +225,7 @@ class BoardRenderer:
             lines = [
                 "Controles:",
                 "T: tirar   R: reiniciar   H: ayuda   J: jugadas",
-                "Click: origen → destino. Con fichas en barra, podés clickear directo el destino.",
+                "Click: origen → destino. Barra=desde comida. Bandeja= sacar (bear-off).",
                 "ESC/Q/V: volver al menú",
             ]
             y = 10

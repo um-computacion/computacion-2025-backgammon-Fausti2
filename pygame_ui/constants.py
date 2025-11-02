@@ -1,10 +1,3 @@
-"""
-Constantes de la UI (versión simple):
-- Marco exterior color único
-- Barra central y bandeja lateral con el mismo estilo
-- Números y textos con color uniforme
-"""
-
 # Ventana
 WIDTH, HEIGHT = 1000, 680
 MARGIN = 18
@@ -46,10 +39,14 @@ ERROR    = (170, 40, 40)
 # Varias
 FPS = 60
 FONT_SIZE = 20
-IDX_FROM_BAR = -1
+
+# Índices especiales de la UI
+IDX_FROM_BAR  = -1   # entrar desde barra central
+IDX_BEAR_OFF  = 24   # destino especial UI para sacar (se mapea a end=24)
+
 CHECKERS_PER_COLOR = 15
 
-# Ubicación de dados: "canal" (por defecto) o "topleft"
+# Ubicación de dados (no usado en estos cambios)
 DICE_PLACEMENT = "canal"
 
 # --- helpers ---
