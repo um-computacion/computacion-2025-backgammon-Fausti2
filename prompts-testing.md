@@ -1,0 +1,13 @@
+# Prompt 1
+
+## ChatGPT 5:
+
+### Pregunta: 
+"Agregué un test para set_values en la clase Dice y usé assertRaises(ValueError) cuando pongo [0, 7]. ¿Está bien usar assertRaises para este caso o debería probarlo de otra forma?"
+
+### Respuesta:  
+ "Está bien usar assertRaises(ValueError) en ese caso. Ese assert sirve justamente para comprobar que tu función lanza una excepción cuando recibe datos inválidos. Como 0 y 7 no son valores válidos de un dado, el test confirma que tu código responde correctamente con el error. Es la forma correcta de probarlo."
+
+### Uso: 
+Usé esta respuesta para confirmar que mi test estaba bien y lo agregue. 
+

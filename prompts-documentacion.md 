@@ -1,0 +1,110 @@
+# Prompt 1
+
+## ChatGPT 5:
+
+### Pregunta: 
+Cual es la estrcutura correcta para realizar un Changelog 
+
+### Respuesta:
+ # Changelog
+All notable changes to this project will be documented in this file.
+
+## [Unreleased]
+
+## [versión] - YYYY-MM-DD
+### Added
+- ...
+
+### Changed
+- ...
+
+### Fixed
+- ...
+
+### Removed 
+- ...
+
+### Uso: 
+Tuve en cuenta la estrucutura y realice los cambios en Changelog 
+
+# Prompt 2
+
+ ## ChatGPT 5:
+
+### Pregunta: 
+Le dije que me realice la estrucutura en español 
+
+### Respuesta: 
+# Changelog
+Todos los cambios notables de este proyecto se documentarán en este archivo.
+
+## [Sin publicar]
+### Agregado
+- (Aquí vas anotando lo que sumes antes de cerrar una versión)
+
+### Modificado
+- (Aquí lo que hayas cambiado)
+
+### Corregido
+- (Aquí lo que hayas arreglado)
+
+### Eliminado
+- (Aquí lo que hayas quitado) 
+
+###Uso: 
+
+Tuve en cuenta la estrucutura y realice los cambios en Changelog 
+
+# Prompt 3 
+
+## ChatGPT 5: 
+
+### Pregunta: 
+Estoy armando mi archivo de prompts y quiero que en GitHub se vean bien en la pestaña Preview, con título y subtítulos. 
+Cómo debería escribirlos en visual code para que aparezcan con buen formato por que en la pestaña Preview no me aparece ordenado me aparece un texto corrido. 
+
+ ### Respuesta: 
+ ¡Ya entendí, Fausti! 🙌
+Lo que pasa es que en tu archivo prompts-documentacion.md estás escribiendo todo como texto plano o con ## Prompt 1, --Pregunta, --Respuesta, etc. Eso no se muestra en GitHub como títulos y subtítulos.
+En cambio, el usó sintaxis Markdown (con #, ##, ###, etc.), que es lo que GitHub interpreta para darle formato y mostrarlo lindo en la pestaña Preview.
+Cómo lo estás escribiendo vos ahora
+## Prompt 1
+--Pregunta: Cual es la estructura correcta para realizar un Changelog
+--Respuesta: # Changelog
+All notable changes to this project will be documented in this file. 
+Esto se ve todo junto y plano.
+🔹 Cómo deberías escribirlo en Markdown 
+# Prompt 1: Estructura para un Changelog
+
+## Pregunta
+¿Cuál es la estructura correcta para realizar un Changelog?
+
+## Respuesta
+```markdown
+# Changelog
+All notable changes to this project will be documented in this file.
+
+## [Unreleased]
+## [versión] - YYYY-MM-DD
+### Added
+- ...
+
+### Changed
+- ...
+
+### Fixed
+- ...
+
+### Removed
+- ...
+Uso
+Tuve en cuenta la estructura y realicé los cambios en el Changelog.
+---
+
+### 🚀 Diferencias
+- `# Prompt 1` → título grande.  
+- `## Pregunta`, `## Respuesta`, `## Uso` → subtítulos claros.  
+- Para mostrar código tal cual, se usan **triple backticks** (```) al inicio y al final.  
+---
+
+### Uso: Tuve en cuenta que con "--" no se realiza titulos ni subititulos entonces voy a implementar siempre "#" para títulos, `##` para subtítulos. 
